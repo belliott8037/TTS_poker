@@ -1,0 +1,7 @@
+function onLoad()
+    self.shuffle()
+end
+
+function deal()
+    print("dealing...")
+end
