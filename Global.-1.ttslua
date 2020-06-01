@@ -1,22 +1,23 @@
-deck_GUID = "3a8d6b" -- Deck GUID
+num_50 = 10
+num_100 = 5
+num_500 = 1
+num_1000 = 1
+deck_GUID = "3a8d6b"
 inf_bag_50_GUID = "8e496c"
 inf_bag_100_GUID = "a9e126"
 inf_bag_500_GUID = "9a0f18"
 inf_bag_1000_GUID = "6d5768"
 dealer_button_GUID = "1542ed"
 dealer_GUID = "5e50dc"
-num_50 = 10
-num_100 = 5
-num_500 = 1
-num_1000 = 1
 deal_button = {
 	click_function = "deal", label = "Deal", position = {0,0.1,0},
 	rotation = {0,0,0}, width = 500, height = 500, font_size = 200,
 	function_owner = nil
 }
-betting_zones_GUID = {"f3a9a4", "873e94", "444e67", "614799", "eb141f", "38cf8c", "7eea62", "f9a8e0"}
---					   white,    red,	   orange,	 yellow,   green,	 blue,	   purple,	 pink
+betting_zone_GUID = {"f3a9a4", "873e94", "444e67", "614799", "eb141f", "38cf8c", "7eea62", "f9a8e0"}
+color_order = {"white", "red", "orange", "yellow","green","blue", "purple","pink"}
 betting_zones = {}
+betting_zone_color = {}
 
 --[[ The onLoad event is called after the game save finishes loading. --]]
 function onLoad()
@@ -30,7 +31,7 @@ function onLoad()
     player_colors = getSeatedPlayers()
     dealer.createButton(deal_button)
 
-for i, v in ipairs(betting_zones_GUID) do
+	for i, v in ipairs(betting_zone_GUID) do
 	    betting_zones[i] = getObjectFromGUID(v)
 	end
 end
@@ -55,6 +56,7 @@ function dealInitialChips(color)
         inf_bag_1000.call('dealChips', {color})
     end
 end
+
 function deal(obj,color)
 	players = {}
 	for i in ipairs(betting_zones) do
@@ -62,7 +64,11 @@ function deal(obj,color)
 			print("FOUND IT! ")
 			break
 		else
-			print("Can't find it")
+			--print("Can't find it")
 		end
 	end
+	for i in ipairs(betting_zone_GUID) do
+		betting_zone_color[betting_zone_GUID[i]] = color_order[i]
+	end
+
 end
