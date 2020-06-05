@@ -7,39 +7,92 @@ inf_bag_50_GUID = "8e496c"
 inf_bag_100_GUID = "a9e126"
 inf_bag_500_GUID = "9a0f18"
 inf_bag_1000_GUID = "6d5768"
-dealer_button_GUID = "1542ed"
-dealer_GUID = "5e50dc"
-deal_button = {
-	click_function = "deal", label = "Deal", position = {0,0.1,0},
-	rotation = {0,0,0}, width = 500, height = 500, font_size = 200,
-	function_owner = nil
-}
+dealer_token_GUID = "1542ed"
+deal_GUID = "5e50dc"
 betting_zone_GUID = {"f3a9a4", "873e94", "444e67", "614799", "eb141f", "38cf8c", "7eea62", "f9a8e0"}
 color_order = {"white", "red", "orange", "yellow","green","blue", "purple","pink"}
 betting_zones = {}
 betting_zone_color = {}
-
+-- Creating color/zone association
+for i in ipairs(betting_zone_GUID) do
+	betting_zone_color[betting_zone_GUID[i]] = color_order[i]
+end
+deal_button = {
+	click_function = "play", label = "Deal", position = {0,0.1,0},
+	rotation = {0,0,0}, width = 500, height = 500, font_size = 200,
+	function_owner = nil
+}
 --[[ The onLoad event is called after the game save finishes loading. --]]
 function onLoad()
     deck = getObjectFromGUID(deck_GUID)
     inf_bag_50 = getObjectFromGUID(inf_bag_50_GUID)
+	inf_bag_50.setName("$50")
     inf_bag_100 = getObjectFromGUID(inf_bag_100_GUID)
+	inf_bag_100.setName("$100")
     inf_bag_500 = getObjectFromGUID(inf_bag_500_GUID)
+	inf_bag_500.setName("$500")
     inf_bag_1000 = getObjectFromGUID(inf_bag_1000_GUID)
-    dealer = getObjectFromGUID(dealer_GUID)
-	dealer_button = getObjectFromGUID(dealer_button_GUID)
+	inf_bag_1000.setName("$1000")
+	dealer_token = getObjectFromGUID(dealer_token_GUID)
+	dealer_token.setName("Dealer")
     player_colors = getSeatedPlayers()
-    dealer.createButton(deal_button)
-
+	deal = getObjectFromGUID(deal_GUID)
+	deal.setName("Deal")
+	deal.createButton(deal_button)
 	for i, v in ipairs(betting_zone_GUID) do
 	    betting_zones[i] = getObjectFromGUID(v)
 	end
+	dealer = nil
 end
 
 function onPlayerChangedColor(color)
     if color != 'Grey' and color != 'Black' then
         dealInitialChips(color)
     end
+end
+
+function onObjectEnterScriptingZone(zone, obj)
+	if obj.getGUID() == dealer_token.guid then
+		dealer = getColor(zone.guid)
+		return dealer
+	end
+end
+
+function onObjectLeaveScriptingZone(zone, leave_object)
+	if obj.getGUID() == dealer_token.guid then
+		dealer = nil
+		return dealer
+	end
+end
+
+function getColor(zone_guid)
+	return betting_zone_color[zone_guid]
+end
+
+function play(obj,color)
+	print("dealing..")
+	-- Step 1: Locate Dealer
+	if dealer == nil then
+		rgb = {r=1, g=0, b=0}
+		broadcastToAll("No Dealer Found", rgb)
+	else
+		print(dealer)
+	end
+	-- for i in ipairs(betting_zones) do
+	-- 	-- .getObjects()[1] is first entry of the table.
+	-- 	if betting_zones[i].getObjects()[1] != nil then
+	-- 		print("Object(s) found: ")
+	-- 		objects = betting_zones[i].getObjects()
+	-- 		for i in ipairs(objects) do
+	-- 			print(objects[i].guid)
+	-- 			if objects[i].guid == dealer_token.guid then
+	-- 				print("FOUND IT ")
+	-- 			end
+	-- 		end
+	-- 	else
+	-- 		--print("empty zone")
+	-- 	end
+	-- end
 end
 
 function dealInitialChips(color)
@@ -55,20 +108,4 @@ function dealInitialChips(color)
     for i = 1, num_1000 do
         inf_bag_1000.call('dealChips', {color})
     end
-end
-
-function deal(obj,color)
-	players = {}
-	for i in ipairs(betting_zones) do
-		if betting_zones[i].getObjects()[1] == dealer_button then
-			print("FOUND IT! ")
-			break
-		else
-			--print("Can't find it")
-		end
-	end
-	for i in ipairs(betting_zone_GUID) do
-		betting_zone_color[betting_zone_GUID[i]] = color_order[i]
-	end
-
 end
