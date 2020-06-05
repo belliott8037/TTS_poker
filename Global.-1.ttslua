@@ -59,7 +59,8 @@ function onObjectEnterScriptingZone(zone, obj)
 end
 
 function onObjectLeaveScriptingZone(zone, leave_object)
-	if obj.getGUID() == dealer_token.guid then
+	if leave_object.getGUID() == dealer_token.guid then
+		print(leave_object.guid)
 		dealer = nil
 		return dealer
 	end
@@ -70,14 +71,14 @@ function getColor(zone_guid)
 end
 
 function play(obj,color)
-	print("dealing..")
+--	print("dealing..")
 	-- Step 1: Locate Dealer
-	if dealer == nil then
-		rgb = {r=1, g=0, b=0}
-		broadcastToAll("No Dealer Found", rgb)
-	else
-		print(dealer)
-	end
+	-- if dealer == nil then
+	-- 	rgb = {r=1, g=0, b=0}
+	-- 	broadcastToAll("No Dealer Found", rgb)
+	-- else
+	-- 	print(dealer)
+	-- end
 	-- for i in ipairs(betting_zones) do
 	-- 	-- .getObjects()[1] is first entry of the table.
 	-- 	if betting_zones[i].getObjects()[1] != nil then
