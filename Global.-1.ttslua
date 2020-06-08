@@ -43,6 +43,7 @@ function onLoad()
 	    betting_zones[i] = getObjectFromGUID(v)
 	end
 	dealer = nil
+	state = 0
 end
 
 function onPlayerChangedColor(color)
@@ -60,7 +61,6 @@ end
 
 function onObjectLeaveScriptingZone(zone, leave_object)
 	if leave_object.getGUID() == dealer_token.guid then
-		print(leave_object.guid)
 		dealer = nil
 		return dealer
 	end
@@ -71,14 +71,26 @@ function getColor(zone_guid)
 end
 
 function play(obj,color)
---	print("dealing..")
 	-- Step 1: Locate Dealer
-	-- if dealer == nil then
-	-- 	rgb = {r=1, g=0, b=0}
-	-- 	broadcastToAll("No Dealer Found", rgb)
-	-- else
-	-- 	print(dealer)
-	-- end
+	if dealer == nil then
+		rgb = {r=1, g=0, b=0}
+		broadcastToAll("No Dealer Found", rgb)
+	else
+		if state == 0 then
+			-- Deal clockwise from dealer.
+			deal_params = {dealer, betting_zone_color, betting_zone_GUID}
+			deck.call("deal", deal_params)
+			-- UPDATE STATE AFTER CALL
+			-- state = 1
+			-- Do other states for river..etc..
+		-- elseif state == 1 then
+		-- 	deal_params = {dealer, betting_zone_color, betting_zone_GUID}
+		-- 	deck.call("deal", deal_params)
+		else
+			print(state)
+		end
+	end
+	-- This stuff could be useful for future pot adding/updating?
 	-- for i in ipairs(betting_zones) do
 	-- 	-- .getObjects()[1] is first entry of the table.
 	-- 	if betting_zones[i].getObjects()[1] != nil then

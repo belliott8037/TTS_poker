@@ -2,6 +2,79 @@ function onLoad()
     self.shuffle()
 end
 
-function deal()
-    print("dealing...")
+function deal(deal_params)
+    -- deal_params = {dealer, betting_zone_color, betting_zone_GUID}
+    found = false
+    print("dealing from deck...")
+    dealer = deal_params[1] -- dealer = zone where token is
+    -- betting_zone_color = deal_params[2] -- table holding colors
+    -- betting_zone_GUID = deal_params[3] -- keys to table w/ color's zone
+    --print(betting_zone_color[betting_zone_GUID[n]])
+
+    -- get refreshed list of seated players?
+    --local player_colors = getSeatedPlayers()
+    local player_colors = {"white", "red", "yellow","pink"}
+    -- get dealer spot/index
+    for i in ipairs(player_colors) do
+        if dealer == player_colors[i] then
+            dealer_index = i
+        end
+    end
+--    print("dealer_index: "..dealer_index)
+    local max = dealer_index + #player_colors
+    -- this might need further testing.. but I think this works.
+    for i = dealer_index + 1, max do
+        index = i % #player_colors
+        print("index: "..index)
+        if i == max then
+            print("dealing to self then breaking..")
+        elseif index == 0 then
+            print("dealing to i")
+
+        else
+            print("dealing to index")
+        end
+        print(i)
+    end
+    --print(#player_colors)
+    -- !!!THIS REQUIRES TESTING!!!
+    -- for i = 1,3 do
+    --     print(i)
+    -- end
+    --self.deal(1)
+    -- This is where we inject logic for when to do flop/turn/etc.
+    -- This will probably be based on #of clicks deal function has had? or
+    -- We can look at the table for what cards are there, and what to do next.
+    --Wait.time(kill,1)
+    --flop()
 end
+-- function getPlayerOrder(player_colors)
+--
+-- end
+-- function flop()
+--     -- call kill
+--     kill()
+--     -- place top 3 cards in the correct positions and flip them.
+-- end
+--
+-- function turn()
+--     -- call kill
+--
+--     -- place top card in the correct position and flip it.
+-- end
+--
+-- function river()
+--     -- call kill
+--
+--     -- place top card in the correct position and flip it.
+-- end
+--
+-- function kill()
+--     -- place the top card of the deck into the discard pile
+--     -- first find location of discard pile.
+--     -- maybe make a zone and place card in zone??
+--     -- position = self.positionToWorld()
+--     -- for i in position do
+--     --     print(position[i])
+--     -- end
+-- end
