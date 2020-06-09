@@ -13,6 +13,7 @@ function deal(deal_params)
 
     -- get refreshed list of seated players?
     --local player_colors = getSeatedPlayers()
+    -- TODO test to see if order is consistent
     local player_colors = {"white", "red", "yellow","pink"}
     -- get dealer spot/index
     for i in ipairs(player_colors) do
@@ -20,21 +21,15 @@ function deal(deal_params)
             dealer_index = i
         end
     end
---    print("dealer_index: "..dealer_index)
     local max = dealer_index + #player_colors
-    -- this might need further testing.. but I think this works.
-    for i = dealer_index + 1, max do
-        index = i % #player_colors
-        print("index: "..index)
-        if i == max then
-            print("dealing to self then breaking..")
-        elseif index == 0 then
-            print("dealing to i")
-
+    for i = dealer_index, max do
+        index = i % #player_colors + 1
+        if index == dealer_index then
+            print("dealing to dealer")
+            break
         else
-            print("dealing to index")
+            print("dealing to "..index)
         end
-        print(i)
     end
     --print(#player_colors)
     -- !!!THIS REQUIRES TESTING!!!
