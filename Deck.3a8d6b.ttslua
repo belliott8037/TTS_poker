@@ -36,10 +36,12 @@ function deal(deal_params)
             j = j + 1
         end
     end
-    for i in ipairs(player_order) do
-        Wait.time(function() deal_one(player_order[i]) end, timer)
-        timer = timer + 0.5
-    end
+--    for j = 1,2 do
+        for i in ipairs(player_order) do
+            Wait.time(function() deal_one(player_order[i]) end, timer)
+            timer = timer + 0.5
+        end
+--    end
 end
 function deal_one(player_color)
     self.deal(1,player_color)
