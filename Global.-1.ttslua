@@ -10,7 +10,7 @@ inf_bag_1000_GUID = "6d5768"
 dealer_token_GUID = "1542ed"
 deal_GUID = "5e50dc"
 betting_zone_GUID = {"f3a9a4", "873e94", "444e67", "614799", "eb141f", "38cf8c", "7eea62", "f9a8e0"}
-color_order = {"white", "red", "orange", "yellow","green","blue", "purple","pink"}
+color_order = {"White", "Red", "Orange", "Yellow","Green","Blue", "Purple","Pink"}
 betting_zones = {}
 betting_zone_color = {}
 -- Creating color/zone association
@@ -76,18 +76,19 @@ function play(obj,color)
 		rgb = {r=1, g=0, b=0}
 		broadcastToAll("No Dealer Found", rgb)
 	else
-		if state == 0 then
+		if state == 0 or state == 1 then
 			-- Deal clockwise from dealer.
 			deal_params = {dealer, betting_zone_color, betting_zone_GUID}
 			deck.call("deal", deal_params)
 			-- UPDATE STATE AFTER CALL
-			-- state = 1
-			-- Do other states for river..etc..
-		-- elseif state == 1 then
-		-- 	deal_params = {dealer, betting_zone_color, betting_zone_GUID}
-		-- 	deck.call("deal", deal_params)
-		else
-			print(state)
+		-- 	if state == 0 then
+		-- 		state = 1
+		-- 	else
+		-- 		state = 2
+		-- 	end
+		-- elseif state == 2 then
+		--  	deal_params = {dealer, betting_zone_color, betting_zone_GUID}
+		-- 	deck.call("flop", deal_params)
 		end
 	end
 	-- This stuff could be useful for future pot adding/updating?
