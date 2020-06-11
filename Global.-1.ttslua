@@ -1,12 +1,11 @@
+num_10 = 10
 num_50 = 10
-num_100 = 5
-num_500 = 1
-num_1000 = 1
+num_100 = 13
 deck_GUID = "3a8d6b"
 inf_bag_50_GUID = "8e496c"
 inf_bag_100_GUID = "a9e126"
 inf_bag_500_GUID = "9a0f18"
-inf_bag_1000_GUID = "6d5768"
+inf_bag_10_GUID = "26ebe4"
 dealer_token_GUID = "1542ed"
 deal_GUID = "5e50dc"
 betting_zone_GUID = {"f3a9a4", "873e94", "444e67", "614799", "eb141f", "38cf8c", "7eea62", "f9a8e0"}
@@ -31,8 +30,8 @@ function onLoad()
 	inf_bag_100.setName("$100")
     inf_bag_500 = getObjectFromGUID(inf_bag_500_GUID)
 	inf_bag_500.setName("$500")
-    inf_bag_1000 = getObjectFromGUID(inf_bag_1000_GUID)
-	inf_bag_1000.setName("$1000")
+    inf_bag_10 = getObjectFromGUID(inf_bag_10_GUID)
+	inf_bag_10.setName("$10")
 	dealer_token = getObjectFromGUID(dealer_token_GUID)
 	dealer_token.setName("Dealer")
     player_colors = getSeatedPlayers()
@@ -116,10 +115,7 @@ function dealInitialChips(color)
     for i = 1, num_100 do
         inf_bag_100.call('dealChips', {color})
     end
-    for i = 1, num_500 do
-        inf_bag_500.call('dealChips', {color})
-    end
-    for i = 1, num_1000 do
-        inf_bag_1000.call('dealChips', {color})
+    for i = 1, num_10 do
+        inf_bag_10.call('dealChips', {color})
     end
 end

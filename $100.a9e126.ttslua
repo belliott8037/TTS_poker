@@ -20,9 +20,9 @@ function dealChips(player_color)
 
     local player_hand = Player[player_color[1]].getPlayerHand()
     local position = {}
-    position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * -4.5 + player_hand['trigger_right_x'] * -1
+    position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * -4.5 + player_hand['trigger_right_x'] * 2
     position['y'] = player_hand['pos_y'] + 1
-    position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * -4 + player_hand['trigger_right_z'] * -0.5
+    position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * -4 + player_hand['trigger_right_z'] * 2
     local callback_params = {}
     callback_params['player_color'] = player_color[1]
 
