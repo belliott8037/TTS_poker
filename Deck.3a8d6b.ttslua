@@ -11,12 +11,11 @@ function deal(deal_params)
     dealer = deal_params[1] -- dealer = zone where token is
     -- betting_zone_color = deal_params[2] -- table holding colors
     -- betting_zone_GUID = deal_params[3] -- keys to table w/ color's zone
-    --print(betting_zone_color[betting_zone_GUID[n]])
 
     -- get refreshed list of seated players or maybe should pull in from args?
-    --local player_colors = getSeatedPlayers()
+    local player_colors = getSeatedPlayers()
     -- TODO test to see if order is consistent
-    local player_colors = {"White", "Red", "Yellow", "Pink"}
+    --local player_colors = {"White", "Red", "Yellow", "Pink"}
     -- get dealer spot/index this needs to get fixed.
     for i in ipairs(player_colors) do
         if dealer == player_colors[i] then
@@ -39,7 +38,7 @@ function deal(deal_params)
 --    for j = 1,2 do
         for i in ipairs(player_order) do
             Wait.time(function() deal_one(player_order[i]) end, timer)
-            timer = timer + 0.5
+            timer = timer + 0.25
         end
 --    end
 end

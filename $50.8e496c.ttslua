@@ -18,15 +18,36 @@ function dealChips(player_color)
         return
     end
 
+    -- gotta add if statements on color cause this shit doesn't work with horribly seated tables.
     local player_hand = Player[player_color[1]].getPlayerHand()
     local position = {}
-    position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * 4.5 + player_hand['trigger_right_x'] * -4
-    position['y'] = player_hand['pos_y']
-    position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * 4 + player_hand['trigger_right_z'] * -4
+    -- left/right
+    if player_color[1] == "White" then
+        position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * -3 + player_hand['trigger_right_x'] * -4
+        position['y'] = player_hand['pos_y'] + 0.5
+        position['z'] = player_hand['pos_z'] + 1 + player_hand['trigger_forward_z'] * -3.25 + player_hand['trigger_right_z'] * 2
+    elseif player_color[1] == "Red" then
+        position['x'] = player_hand['pos_x'] -0.5 + player_hand['trigger_forward_x'] * -4.5 + player_hand['trigger_right_x'] * -4
+        position['y'] = player_hand['pos_y']
+        position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * -2 + player_hand['trigger_right_z'] * -4
 
+    elseif player_color[1] == "Purple" then
+        position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * -1 + player_hand['trigger_right_x'] * -10
+        position['y'] = player_hand['pos_y'] + 1
+        position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * -7 + player_hand['trigger_right_z'] * -4
+
+    elseif player_color[1] == "Pink" then
+        position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * -7 + player_hand['trigger_right_x'] * -4
+        position['y'] = player_hand['pos_y'] + 1
+        position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * -4 + player_hand['trigger_right_z'] * -4
+
+    else
+        position['x'] = player_hand['pos_x'] - 1 + player_hand['trigger_forward_x'] * -4.5 + player_hand['trigger_right_x'] * -4
+        position['y'] = player_hand['pos_y'] + 0.3
+        position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * -4 + player_hand['trigger_right_z'] * -4
+    end
     local callback_params = {}
     callback_params['player_color'] = player_color[1]
-
     local params = {}
     params.position = {position.x, position.y, position.z}
     params.rotation = {0, player_hand['rot_y'] + 90, 0} --[[ Poker chips are by default 90 degrees off. --]]

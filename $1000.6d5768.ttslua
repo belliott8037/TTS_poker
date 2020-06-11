@@ -19,10 +19,27 @@ function dealChips(player_color)
 
     local player_hand = Player[player_color[1]].getPlayerHand()
     local position = {}
-    position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * 4.5 + player_hand['trigger_right_x'] * 2
-    position['y'] = player_hand['pos_y']
-    position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * 4 + player_hand['trigger_right_z'] * 2
-
+    if player_color[1] == "White" then
+        position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * 4 + player_hand['trigger_right_x'] * -3
+        position['y'] = player_hand['pos_y'] + 1
+        position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * 4 + player_hand['trigger_right_z'] * 15
+    elseif player_color[1] == "Red" then
+        position['x'] = player_hand['pos_x'] -0.5 + player_hand['trigger_forward_x'] * -6 + player_hand['trigger_right_x'] * 0
+        position['y'] = player_hand['pos_y']
+        position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * 10 + player_hand['trigger_right_z'] * -4
+    elseif player_color[1] == "Purple" then
+        position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * -4 + player_hand['trigger_right_x'] * 3
+        position['y'] = player_hand['pos_y'] + 1
+        position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * 2 + player_hand['trigger_right_z'] * 5.5
+    elseif player_color[1] == "Pink" then
+        position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * -2  + player_hand['trigger_right_x'] * 4
+        position['y'] = player_hand['pos_y'] + 1
+        position['z'] = player_hand['pos_z'] - 4 + player_hand['trigger_forward_z'] * -4.5 + player_hand['trigger_right_z'] * 10
+    else
+        position['x'] = player_hand['pos_x'] - 1 + player_hand['trigger_forward_x'] * -4 + player_hand['trigger_right_x'] * 1.25
+        position['y'] = player_hand['pos_y'] + 0.75
+        position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * -4
+    end
     local callback_params = {}
     callback_params['player_color'] = player_color[1]
 
