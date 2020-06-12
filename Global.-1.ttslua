@@ -1,5 +1,5 @@
-num_10 = 10
-num_50 = 10
+num_10 = 20
+num_50 = 20
 num_100 = 13
 deck_GUID = "3a8d6b"
 inf_bag_50_GUID = "8e496c"
@@ -7,9 +7,12 @@ inf_bag_100_GUID = "a9e126"
 inf_bag_500_GUID = "9a0f18"
 inf_bag_10_GUID = "26ebe4"
 dealer_token_GUID = "1542ed"
+table_zone_GUID = "7e94a9"
+discard_zone_GUID = "960f61"
 BB_GUID = "a560f3"
 SB_GUID = "a3ca23"
 deal_GUID = "5e50dc"
+reset_GUID = "a446b7"
 betting_zone_GUID = {"f3a9a4", "873e94", "444e67", "614799", "eb141f", "38cf8c", "7eea62", "f9a8e0"}
 color_order = {"White", "Red", "Orange", "Yellow","Green","Blue", "Purple","Pink"}
 betting_zones = {}
@@ -20,6 +23,11 @@ for i in ipairs(betting_zone_GUID) do
 end
 deal_button = {
 	click_function = "play", label = "Deal", position = {0,0.1,0},
+	rotation = {0,0,0}, width = 500, height = 500, font_size = 200,
+	function_owner = nil
+}
+reset_button = {
+	click_function = "reset_board", label = "Reset", position = {0,0.1,0},
 	rotation = {0,0,0}, width = 500, height = 500, font_size = 200,
 	function_owner = nil
 }
@@ -44,9 +52,14 @@ function onLoad()
 	deal = getObjectFromGUID(deal_GUID)
 	deal.setName("Deal")
 	deal.createButton(deal_button)
+	reset = getObjectFromGUID(reset_GUID)
+	reset.setName("Reset")
+	reset.createButton(reset_button)
 	for i, v in ipairs(betting_zone_GUID) do
 	    betting_zones[i] = getObjectFromGUID(v)
 	end
+	table_zone = getObjectFromGUID(table_zone_GUID)
+	discard_zone = getObjectFromGUID(discard_zone_GUID)
 	dealer = nil
 	state = 0
 end
@@ -103,7 +116,6 @@ function play(obj,color)
 		else
 			rgb = {r=1, g=1, b=0}
 			broadcastToAll("SHOWDOWN", rgb)
-
 		end
 	end
 	-- This stuff could be useful for future pot adding/updating?
@@ -120,6 +132,43 @@ function play(obj,color)
 	-- 		end
 	-- 	else
 	-- 		--print("empty zone")
+	-- 	end
+	-- end
+end
+
+-- resets gameboard, takes cards from players hands and table, replaces them in the deck.
+-- if deck does not equal 52 cards after reset, delete old deck, create new deck in its spot
+-- reset state variable
+function reset_board()
+	state = 0
+	-- TODO do this last since big fuck you zones should be the last thing to do.
+	discard_zone_cards = discard_zone.getObjects()
+
+
+	-- TODO tweek location of flop to get deck location.
+	for i, object in ipairs(discard_zone_cards) do
+		if object.tag == "Deck" or object.tag == "Card" then
+			print(discard_zone_cards[i])
+			print(discard_zone_cards.positionToWorld())
+			discard_params = {
+				position = {x=position.x+2, y=position.y+2, z=z}
+			}
+			discard_zone_cards[i].takeObject()
+			-- for j in ipairs(object[i]) do
+			-- 	print(object[j])
+			-- end
+		-- elseif object.tag == "Card" then
+		-- 	--print("Object is a card")
+		-- 	deck_params = {
+		-- 		position = {x=2, y=1, z=2}
+		-- 	}
+		-- 	object.takeObject()
+		end
+	end
+	-- objects_in_zone = table_zone.getObjects()
+	-- for i, object in ipairs(objects_in_zone) do
+	-- 	if object.tag == "Card" then
+	-- 		object.putObject(deck)
 	-- 	end
 	-- end
 end
