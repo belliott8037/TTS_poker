@@ -3,17 +3,15 @@ function onLoad()
 end
 
 function deal(deal_params)
-    -- deal_params = {dealer, betting_zone_color, betting_zone_GUID}
+    -- deal_params = {dealer, player_colors}
     self.use_hands = true
     local player_order = {}
     local timer = 0
     local j = 1
     dealer = deal_params[1] -- dealer = zone where token is
-    -- betting_zone_color = deal_params[2] -- table holding colors
-    -- betting_zone_GUID = deal_params[3] -- keys to table w/ color's zone
-
+    player_colors = deal_params[2] -- table of players
     -- get refreshed list of seated players or maybe should pull in from args?
-    local player_colors = getSeatedPlayers()
+    --local player_colors = getSeatedPlayers()
     -- TODO test to see if order is consistent
     --local player_colors = {"White", "Red", "Yellow", "Pink"}
     -- get dealer spot/index this needs to get fixed.
@@ -45,39 +43,42 @@ end
 function deal_one(player_color)
     self.deal(1,player_color)
 end
- function flop()
-     local timer = 0
-     -- Kill one card
+function flop()
+    local timer = 0
     kill()
-    -- place top 3 cards in the correct positions and flip them.
-    print("Flippy Floppy")
     local flop_params = {
-        position = {x=-5.6, y=4, z=-1.99},
+        position = {x=-5.6, y=4, z=-2},
         flip = true
     }
     x_table = {-5.6, -2.8, 0}
     for i = 1,3 do
-        Wait.time(function() slow_flop(flop_params,x_table[i]) end, timer)
+        Wait.time(function() slow_flip(flop_params,x_table[i]) end, timer)
         timer = timer + 0.5
     end
  end
- function slow_flop(flop_params, x_val)
-     flop_params.position.x = x_val
-     self.takeObject(flop_params)
+ function slow_flip(flip_params, x_val)
+     flip_params.position.x = x_val
+     self.takeObject(flip_params)
  end
---
--- function turn()
---     -- call kill
---
---     -- place top card in the correct position and flip it.
--- end
---
--- function river()
---     -- call kill
---
---     -- place top card in the correct position and flip it.
--- end
---
+
+function turn()
+    kill()
+    local turn_params = {
+        position = {x=2.75, y=4, z=-2},
+        flip = true
+    }
+    Wait.time(function () slow_flip(turn_params,turn_params.position.x) end,0.5)
+end
+
+function river()
+    kill()
+    local river_params = {
+        position = {x=5.55, y=4, z=-2},
+        flip = true
+    }
+    Wait.time(function() slow_flip(river_params,river_params.position.x) end, 0.5)
+end
+
 function kill()
     -- place the top card of the deck into the discard pile
     local kill_params = {

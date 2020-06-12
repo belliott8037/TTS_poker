@@ -48,7 +48,7 @@ function onLoad()
 	    betting_zones[i] = getObjectFromGUID(v)
 	end
 	dealer = nil
-	state = 2
+	state = 0
 end
 
 function onPlayerChangedColor(color)
@@ -83,17 +83,27 @@ function play(obj,color)
 	else
 		if state == 0 or state == 1 then
 			-- Deal clockwise from dealer.
-			deal_params = {dealer, betting_zone_color, betting_zone_GUID}
+			deal_params = {dealer, player_colors}
 			deck.call("deal", deal_params)
 			-- UPDATE STATE AFTER CALL
-		-- 	if state == 0 then
-		-- 		state = 1
-		-- 	else
-		-- 		state = 2
-		-- 	end
+			if state == 0 then
+				state = 1
+			else
+				state = 2
+			end
 		elseif state == 2 then
-		 	deal_params = {dealer, betting_zone_color, betting_zone_GUID}
-		 	deck.call("flop", deal_params)
+		 	deck.call("flop")
+			state = 3
+		elseif state == 3 then
+			deck.call("turn")
+			state = 4
+		elseif state == 4 then
+			deck.call("river")
+			state = 5
+		else
+			rgb = {r=1, g=1, b=0}
+			broadcastToAll("SHOWDOWN", rgb)
+
 		end
 	end
 	-- This stuff could be useful for future pot adding/updating?
