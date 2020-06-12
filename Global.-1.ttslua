@@ -7,6 +7,8 @@ inf_bag_100_GUID = "a9e126"
 inf_bag_500_GUID = "9a0f18"
 inf_bag_10_GUID = "26ebe4"
 dealer_token_GUID = "1542ed"
+BB_GUID = "a560f3"
+SB_GUID = "a3ca23"
 deal_GUID = "5e50dc"
 betting_zone_GUID = {"f3a9a4", "873e94", "444e67", "614799", "eb141f", "38cf8c", "7eea62", "f9a8e0"}
 color_order = {"White", "Red", "Orange", "Yellow","Green","Blue", "Purple","Pink"}
@@ -26,6 +28,10 @@ function onLoad()
     deck = getObjectFromGUID(deck_GUID)
     inf_bag_50 = getObjectFromGUID(inf_bag_50_GUID)
 	inf_bag_50.setName("$50")
+	big_blind = getObjectFromGUID(BB_GUID)
+	big_blind.setName("Big Blind")
+	small_blind = getObjectFromGUID(SB_GUID)
+	small_blind.setName("Small Blind")
     inf_bag_100 = getObjectFromGUID(inf_bag_100_GUID)
 	inf_bag_100.setName("$100")
     inf_bag_500 = getObjectFromGUID(inf_bag_500_GUID)
@@ -42,7 +48,7 @@ function onLoad()
 	    betting_zones[i] = getObjectFromGUID(v)
 	end
 	dealer = nil
-	state = 0
+	state = 2
 end
 
 function onPlayerChangedColor(color)
@@ -85,9 +91,9 @@ function play(obj,color)
 		-- 	else
 		-- 		state = 2
 		-- 	end
-		-- elseif state == 2 then
-		--  	deal_params = {dealer, betting_zone_color, betting_zone_GUID}
-		-- 	deck.call("flop", deal_params)
+		elseif state == 2 then
+		 	deal_params = {dealer, betting_zone_color, betting_zone_GUID}
+		 	deck.call("flop", deal_params)
 		end
 	end
 	-- This stuff could be useful for future pot adding/updating?
