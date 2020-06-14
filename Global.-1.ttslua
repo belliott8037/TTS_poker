@@ -1,6 +1,11 @@
 num_10 = 20
 num_50 = 20
 num_100 = 13
+deck_position = {x=-8,y=3,z=-2}
+pot_position_10s = {x=-4, y=2,z=3}
+pot_position_50s = {x=-2, y=2,z=3}
+pot_position_100s = {x=0, y=2,z=3}
+pot_position_500s = {x=2, y=2,z=3}
 deck_GUID = "3a8d6b"
 inf_bag_50_GUID = "8e496c"
 inf_bag_100_GUID = "a9e126"
@@ -13,11 +18,13 @@ BB_GUID = "a560f3"
 SB_GUID = "a3ca23"
 deal_GUID = "5e50dc"
 reset_GUID = "a446b7"
+collect_bets_GUID = "2f1c02"
 betting_zone_GUID = {"f3a9a4", "873e94", "444e67", "614799", "eb141f", "38cf8c", "7eea62", "f9a8e0"}
 color_order = {"White", "Red", "Orange", "Yellow","Green","Blue", "Purple","Pink"}
 betting_zones = {}
 betting_zone_color = {}
--- Creating color/zone association
+-- -- Creating color/zone association
+-- Might want to redo this to get the zone instead of the color..
 for i in ipairs(betting_zone_GUID) do
 	betting_zone_color[betting_zone_GUID[i]] = color_order[i]
 end
@@ -29,6 +36,11 @@ deal_button = {
 reset_button = {
 	click_function = "reset_board", label = "Reset", position = {0,0.1,0},
 	rotation = {0,0,0}, width = 500, height = 500, font_size = 200,
+	function_owner = nil
+}
+collect_button = {
+	click_function = "collect_chips", label = "Collect\nBets", position = {0,0.1,0},
+	rotation = {0,0,0}, width = 550, height = 550, font_size = 200,
 	function_owner = nil
 }
 --[[ The onLoad event is called after the game save finishes loading. --]]
@@ -55,6 +67,9 @@ function onLoad()
 	reset = getObjectFromGUID(reset_GUID)
 	reset.setName("Reset")
 	reset.createButton(reset_button)
+	collect = getObjectFromGUID(collect_bets_GUID)
+	collect.setName("Collect Bets")
+	collect.createButton(collect_button)
 	for i, v in ipairs(betting_zone_GUID) do
 	    betting_zones[i] = getObjectFromGUID(v)
 	end
@@ -118,22 +133,6 @@ function play(obj,color)
 			broadcastToAll("SHOWDOWN", rgb)
 		end
 	end
-	-- This stuff could be useful for future pot adding/updating?
-	-- for i in ipairs(betting_zones) do
-	-- 	-- .getObjects()[1] is first entry of the table.
-	-- 	if betting_zones[i].getObjects()[1] != nil then
-	-- 		print("Object(s) found: ")
-	-- 		objects = betting_zones[i].getObjects()
-	-- 		for i in ipairs(objects) do
-	-- 			print(objects[i].guid)
-	-- 			if objects[i].guid == dealer_token.guid then
-	-- 				print("FOUND IT ")
-	-- 			end
-	-- 		end
-	-- 	else
-	-- 		--print("empty zone")
-	-- 	end
-	-- end
 end
 
 -- resets gameboard, takes cards from players hands and table, replaces them in the deck.
@@ -142,35 +141,33 @@ end
 function reset_board()
 	state = 0
 	-- TODO do this last since big fuck you zones should be the last thing to do.
-	discard_zone_cards = discard_zone.getObjects()
+	-- big zone can grab cards from all hands
+	discard_cards = discard_zone.getObjects()
+	discard_cards[1].setPosition(deck_position)
+end
 
-
-	-- TODO tweek location of flop to get deck location.
-	for i, object in ipairs(discard_zone_cards) do
-		if object.tag == "Deck" or object.tag == "Card" then
-			print(discard_zone_cards[i])
-			print(discard_zone_cards.positionToWorld())
-			discard_params = {
-				position = {x=position.x+2, y=position.y+2, z=z}
-			}
-			discard_zone_cards[i].takeObject()
-			-- for j in ipairs(object[i]) do
-			-- 	print(object[j])
-			-- end
-		-- elseif object.tag == "Card" then
-		-- 	--print("Object is a card")
-		-- 	deck_params = {
-		-- 		position = {x=2, y=1, z=2}
-		-- 	}
-		-- 	object.takeObject()
+function collect_chips()
+	local zone_objects = {}
+	for i in ipairs(betting_zone_GUID) do
+		local object_zone = getObjectFromGUID(betting_zone_GUID[i])
+		zone_objects[i] = object_zone.getObjects()
+		for j in ipairs(zone_objects[i]) do
+			--zone_objects[i][j].tag == "Chip"
+			if zone_objects[i][j].getValue() == 10 then
+				--print("found "..zone_objects[i][j].getQuantity().." "..zone_objects[i][j].getValue().."\'s")
+				zone_objects[i][j].setPosition(pot_position_10s)
+			elseif zone_objects[i][j].getValue() == 50 then
+				zone_objects[i][j].setPosition(pot_position_50s)
+			elseif zone_objects[i][j].getValue() == 100 then
+				zone_objects[i][j].setPosition(pot_position_100s)
+			elseif zone_objects[i][j].getValue() == 500 then
+				zone_objects[i][j].setPosition(pot_position_500s)
+			end
 		end
 	end
-	-- objects_in_zone = table_zone.getObjects()
-	-- for i, object in ipairs(objects_in_zone) do
-	-- 	if object.tag == "Card" then
-	-- 		object.putObject(deck)
-	-- 	end
-	-- end
+
+	-- print(#zone_objects[1]) --works
+	-- print(zone_objects[1][1].tag)
 end
 
 function dealInitialChips(color)
