@@ -2,6 +2,7 @@ num_10 = 20
 num_50 = 20
 num_100 = 13
 deck_position = {x=-8,y=3,z=-2}
+deck_rotation = {x=0,y=0,z=0}
 pot_position_10s = {x=-3, y=2,z=3}
 pot_position_50s = {x=-1, y=2,z=3}
 pot_position_100s = {x=1, y=2,z=3}
@@ -22,15 +23,20 @@ deal_GUID = "5e50dc"
 reset_GUID = "a446b7"
 collect_bets_GUID = "2f1c02"
 total_bets_text_GUID = "70817b"
+table_zone_GUID = "25070a"
 betting_zone_GUID = {"f3a9a4", "873e94", "444e67", "614799", "eb141f", "38cf8c", "7eea62", "f9a8e0"}
 color_order = {"White", "Red", "Orange", "Yellow","Green","Blue", "Purple","Pink"}
-betting_zones = {}
 betting_zone_color = {}
--- -- Creating color/zone association
--- Might want to redo this to get the zone instead of the color..
+betting_zone = {}
+seated_betting_zone = {}
+-- -- Creating color/zone associations
 for i in ipairs(betting_zone_GUID) do
 	betting_zone_color[betting_zone_GUID[i]] = color_order[i]
 end
+for i in ipairs(color_order) do
+	betting_zone[color_order[i]] = betting_zone_GUID[i]
+end
+
 deal_button = {
 	click_function = "play", label = "Deal", position = {0,0.1,0},
 	rotation = {0,0,0}, width = 500, height = 500, font_size = 200,
@@ -74,12 +80,11 @@ function onLoad()
 	collect.setName("Collect Bets")
 	collect.createButton(collect_button)
 	add_text = getObjectFromGUID(total_bets_text_GUID)
+	current_bet_text = getObjectFromGUID(current_bets_text_GUID)
 	pot_zone = getObjectFromGUID(pot_GUID)
-	for i, v in ipairs(betting_zone_GUID) do
-	    betting_zones[i] = getObjectFromGUID(v)
-	end
 	table_zone = getObjectFromGUID(table_zone_GUID)
 	discard_zone = getObjectFromGUID(discard_zone_GUID)
+	table_zone = getObjectFromGUID(table_zone_GUID)
 	dealer = nil
 	state = 0
 end
@@ -148,13 +153,22 @@ function reset_board()
 	-- TODO do this last since big fuck you zones should be the last thing to do.
 	-- big zone can grab cards from all hands
 	discard_cards = discard_zone.getObjects()
-	discard_cards[1].setPosition(deck_position)
-
+	if discard_cards[1] != nil then
+		discard_cards[1].setPosition(deck_position)
+	end
+	local table_cards = table_zone.getObjects()
+	for i in ipairs(table_cards) do
+		if table_cards[i].tag == "Card" then
+			table_cards[i].putObject(deck)
+		end
+	end
+	Wait.time(|| deck.shuffle(), 0.75)
+	-- move sb,bb,dealer chip clockwise.
 end
 
 function collect_chips()
 	local zone_objects = {}
-	for i in ipairs(betting_zone_GUID) do
+	for i in pairs(betting_zone_GUID) do
 		local object_zone = getObjectFromGUID(betting_zone_GUID[i])
 		zone_objects[i] = object_zone.getObjects()
 		for j in ipairs(zone_objects[i]) do
@@ -173,10 +187,10 @@ function collect_chips()
 			end
 		end
 	end
-	Wait.time(function() add_chips() end, 0.03)
+	Wait.time(function() add_chips(pot_zone,add_text) end, 0.03)
 end
-function add_chips()
-	local total_objects = pot_zone.getObjects()
+function add_chips(zone,text)
+	local total_objects = zone.getObjects()
 	local total = 0
 	if total_objects[1] != nil then
 		for i in ipairs(total_objects) do
@@ -187,7 +201,7 @@ function add_chips()
 			end
 		end
 	end
-	add_text.setValue("Total Pot: $"..total)
+	text.setValue("Total Pot: $"..total)
 end
 
 function dealInitialChips(color)
