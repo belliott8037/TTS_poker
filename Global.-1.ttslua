@@ -149,6 +149,7 @@ function reset_board()
 	-- big zone can grab cards from all hands
 	discard_cards = discard_zone.getObjects()
 	discard_cards[1].setPosition(deck_position)
+
 end
 
 function collect_chips()
@@ -172,18 +173,18 @@ function collect_chips()
 			end
 		end
 	end
-	-- print(#zone_objects[1]) --works
-	-- print(zone_objects[1][1].tag)
-	Wait.time(function() add_chips() end, 0.1)
+	Wait.time(function() add_chips() end, 0.03)
 end
 function add_chips()
 	local total_objects = pot_zone.getObjects()
 	local total = 0
-	for i in pairs(total_objects) do
-		if total_objects[i].getQuantity() != -1 then
-			total = total + total_objects[i].getQuantity() * total_objects[i].getValue()
-		else
-			total = total + total_objects[i].getValue()
+	if total_objects[1] != nil then
+		for i in ipairs(total_objects) do
+			if total_objects[i].getQuantity() != -1 then
+				total = total + total_objects[i].getQuantity() * total_objects[i].getValue()
+			else
+				total = total + total_objects[i].getValue()
+			end
 		end
 	end
 	add_text.setValue("Total Pot: $"..total)
