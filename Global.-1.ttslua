@@ -103,7 +103,7 @@ function onObjectEnterScriptingZone(zone, obj)
 end
 
 function onObjectLeaveScriptingZone(zone, leave_object)
-	if leave_object.getGUID() == dealer_token.guid then
+	if leave_object.getGUID() == dealer_token.guid and zone.guid != table_zone_GUID and zone.guid != pot_GUID then
 		dealer = nil
 		return dealer
 	end
@@ -163,7 +163,16 @@ function reset_board()
 		end
 	end
 	Wait.time(|| deck.shuffle(), 0.75)
-	-- move sb,bb,dealer chip clockwise.
+	blinds_params = {dealer, player_colors}
+	if blinds_params[1] == nil then
+		rgb = {r=1, g=0, b=0}
+		broadcastToAll("No Dealer Found", rgb)
+	else
+		small_blind.call("move_blind",blinds_params)
+		big_blind.call("move_blind",blinds_params)
+		dealer_token.call("move_dealer",blinds_params)
+	end
+	add_chips(pot_zone, add_text)
 end
 
 function collect_chips()

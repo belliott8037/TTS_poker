@@ -1,0 +1,32 @@
+function move_blind(player_params)
+-- Find where dealer is sitting
+    dealer = player_params[1]
+    player_colors = player_params[2]
+    for i in ipairs(player_colors) do
+        if dealer == player_colors[i] then
+            dealer_index = i
+            break
+        else
+            dealer_index = nil
+        end
+    end
+    --print(#player_colors)
+    if dealer_index == nil then
+        rgb = {r=1, g=0, b=0}
+		broadcastToAll("Not Valid Dealer", rgb)
+    else
+        local next_big = (dealer_index + 3) % #player_colors
+        if #player_colors == 2 then
+            next_big = (dealer_index % 2)
+        end
+        if next_big == 0  then
+            next_big = #player_colors
+        end
+        local player_hand = Player[player_colors[next_big]].getPlayerHand()
+        local position = {}
+        position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * 4 + player_hand['trigger_right_x'] * -2
+        position['y'] = player_hand['pos_y'] + 0.25
+        position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * 4 + player_hand['trigger_right_z'] * -2
+        self.setPosition(position)
+    end
+end
