@@ -27,15 +27,15 @@ table_zone_GUID = "25070a"
 betting_zone_GUID = {"f3a9a4", "873e94", "444e67", "614799", "eb141f", "38cf8c", "7eea62", "f9a8e0"}
 color_order = {"White", "Red", "Orange", "Yellow","Green","Blue", "Purple","Pink"}
 betting_zone_color = {}
-betting_zone = {}
+text_zone = {}
 seated_betting_zone = {}
 -- -- Creating color/zone associations
 for i in ipairs(betting_zone_GUID) do
 	betting_zone_color[betting_zone_GUID[i]] = color_order[i]
 end
-for i in ipairs(color_order) do
-	betting_zone[color_order[i]] = betting_zone_GUID[i]
-end
+-- for i in ipairs(color_order) do
+-- 	betting_zone[color_order[i]] = betting_zone_GUID[i]
+-- end
 
 deal_button = {
 	click_function = "play", label = "Deal", position = {0,0.1,0},
@@ -80,7 +80,6 @@ function onLoad()
 	collect.setName("Collect Bets")
 	collect.createButton(collect_button)
 	add_text = getObjectFromGUID(total_bets_text_GUID)
-	current_bet_text = getObjectFromGUID(current_bets_text_GUID)
 	pot_zone = getObjectFromGUID(pot_GUID)
 	table_zone = getObjectFromGUID(table_zone_GUID)
 	discard_zone = getObjectFromGUID(discard_zone_GUID)
@@ -172,7 +171,8 @@ function reset_board()
 		big_blind.call("move_blind",blinds_params)
 		dealer_token.call("move_dealer",blinds_params)
 	end
-	add_chips(pot_zone, add_text)
+	add_text.setValue("Total Pot: $0")
+	--add_chips(pot_zone, add_text)
 end
 
 function collect_chips()
@@ -196,6 +196,7 @@ function collect_chips()
 			end
 		end
 	end
+
 	Wait.time(function() add_chips(pot_zone,add_text) end, 0.03)
 end
 function add_chips(zone,text)
