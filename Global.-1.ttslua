@@ -29,6 +29,7 @@ color_order = {"White", "Red", "Orange", "Yellow","Green","Blue", "Purple","Pink
 betting_zone_color = {}
 text_zone = {}
 seated_betting_zone = {}
+fold_button_GUID = "93e5dc"
 -- -- Creating color/zone associations
 for i in ipairs(betting_zone_GUID) do
 	betting_zone_color[betting_zone_GUID[i]] = color_order[i]
@@ -84,6 +85,8 @@ function onLoad()
 	table_zone = getObjectFromGUID(table_zone_GUID)
 	discard_zone = getObjectFromGUID(discard_zone_GUID)
 	table_zone = getObjectFromGUID(table_zone_GUID)
+	fold_button = getObjectFromGUID(fold_button_GUID)
+	fold_button.setName("Fold")
 	dealer = nil
 	state = 0
 end
@@ -91,6 +94,7 @@ end
 function onPlayerChangedColor(color)
     if color != 'Grey' and color != 'Black' then
         dealInitialChips(color)
+		player_colors = getSeatedPlayers()
     end
 end
 
@@ -122,24 +126,27 @@ function play(obj,color)
 			-- Deal clockwise from dealer.
 			deal_params = {dealer, player_colors}
 			deck.call("deal", deal_params)
-			-- UPDATE STATE AFTER CALL
 			if state == 0 then
 				state = 1
 			else
 				state = 2
 			end
 		elseif state == 2 then
+			collect_chips()
 		 	deck.call("flop")
 			state = 3
 		elseif state == 3 then
+			collect_chips()
 			deck.call("turn")
 			state = 4
 		elseif state == 4 then
+			collect_chips()
 			deck.call("river")
 			state = 5
 		else
 			rgb = {r=1, g=1, b=0}
 			broadcastToAll("SHOWDOWN", rgb)
+			collect_chips()
 		end
 	end
 end
@@ -149,8 +156,6 @@ end
 -- reset state variable
 function reset_board()
 	state = 0
-	-- TODO do this last since big fuck you zones should be the last thing to do.
-	-- big zone can grab cards from all hands
 	discard_cards = discard_zone.getObjects()
 	if discard_cards[1] != nil then
 		discard_cards[1].setPosition(deck_position)
@@ -172,7 +177,6 @@ function reset_board()
 		dealer_token.call("move_dealer",blinds_params)
 	end
 	add_text.setValue("Total Pot: $0")
-	--add_chips(pot_zone, add_text)
 end
 
 function collect_chips()
@@ -202,8 +206,8 @@ end
 function add_chips(zone,text)
 	local total_objects = zone.getObjects()
 	local total = 0
-	if total_objects[1] != nil then
-		for i in ipairs(total_objects) do
+	for i in ipairs(total_objects) do
+		if total_objects[i].tag == "Chip" then
 			if total_objects[i].getQuantity() != -1 then
 				total = total + total_objects[i].getQuantity() * total_objects[i].getValue()
 			else
@@ -217,6 +221,7 @@ end
 function dealInitialChips(color)
     for i = 1, num_50 do
         inf_bag_50.call('dealChips', {color})
+
     end
     for i = 1, num_100 do
         inf_bag_100.call('dealChips', {color})

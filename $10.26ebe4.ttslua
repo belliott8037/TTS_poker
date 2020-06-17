@@ -19,9 +19,19 @@ function dealChips(player_color)
     end
     local player_hand = Player[player_color[1]].getPlayerHand()
     local position = {}
-    position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * -4 + player_hand['trigger_right_x'] * -2
-    position['y'] = player_hand['pos_y'] + 0.25
-    position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * -4 + player_hand['trigger_right_z'] * -2
+    if player_color[1] == "White" then
+        position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * -4 + player_hand['trigger_right_x'] * -2
+        position['y'] = player_hand['pos_y'] + -0.1
+        position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * -4 + player_hand['trigger_right_z'] * -2
+    elseif player_color[1] == "Red" then
+        position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * -4 + player_hand['trigger_right_x'] * -2
+        position['y'] = player_hand['pos_y'] + -0.1
+        position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * -4 + player_hand['trigger_right_z'] * -2
+    else
+        position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * -4 + player_hand['trigger_right_x'] * -2
+        position['y'] = player_hand['pos_y'] + 0.45
+        position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * -4 + player_hand['trigger_right_z'] * -2
+    end
     local callback_params = {}
     callback_params['player_color'] = player_color[1]
     local params = {}
@@ -32,9 +42,3 @@ function dealChips(player_color)
 
     self.takeObject(params)
 end
-function chipCallback(spawnedChip, params)
-    --[[ Chip stacking is weird - it deletes the chips that go into the stack and spawns new ones as they are pulled off.
-    So we must set the Lua script code here instead of having it preinitialized on the chip itself before going into the
-    infinte bag and changing the values after pulling the chip out of the bag. --]]
-    spawnedChip.setLuaScript('type = \'chip\'\nvalue = 50\nplayer = \'' .. params['player_color'] .. '\'')
- end
