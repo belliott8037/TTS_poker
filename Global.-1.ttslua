@@ -81,11 +81,18 @@ function getColor(zone_guid)
 	return betting_zone_color[zone_guid]
 end
 
+function isValidDealer(color)
+	for i in ipairs(player_colors) do
+		if color == player_colors[i] then
+			return true
+		end
+	end
+	return false
+end
+
+
 function play(obj,color)
-	if dealer == nil then
-		rgb = {r=1, g=0, b=0}
-		broadcastToAll("No Dealer Found", rgb)
-	else
+	if isValidDealer(dealer) then
 		if state == 0 or state == 1 then
 			-- Deal clockwise from dealer.
 			deal_params = {dealer, player_colors}
@@ -112,6 +119,9 @@ function play(obj,color)
 			broadcastToAll("SHOWDOWN", rgb)
 			collect_chips()
 		end
+	else
+		rgb = {r=1, g=0, b=0}
+		broadcastToAll("Invalid Dealer", rgb)
 	end
 end
 
