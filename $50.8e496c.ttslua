@@ -17,7 +17,6 @@ function dealChips(player_color)
         return
     end
 
-    -- gotta add if statements on color cause this shit doesn't work with horribly seated tables.
     local player_hand = Player[player_color[1]].getPlayerHand()
     local position = {}
     if player_color[1] == "White" then
@@ -37,8 +36,6 @@ function dealChips(player_color)
         position['y'] = player_hand['pos_y'] + 0.5
         position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * -4 + player_hand['trigger_right_z'] * 0.5
     end
-    local callback_params = {}
-    callback_params['player_color'] = player_color[1]
     local params = {}
     params.position = {position.x, position.y, position.z}
     params.rotation = {0, player_hand['rot_y'] + 90, 0} --[[ Poker chips are by default 90 degrees off. --]]

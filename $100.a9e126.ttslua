@@ -23,9 +23,6 @@ function dealChips(player_color)
     position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * -4.5 + player_hand['trigger_right_x'] * 2
     position['y'] = player_hand['pos_y'] + 1
     position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * -4 + player_hand['trigger_right_z'] * 2
-    local callback_params = {}
-    callback_params['player_color'] = player_color[1]
-
     local params = {}
     params.position = {position.x, position.y, position.z}
     params.rotation = {0, player_hand['rot_y'] + 90, 0} --[[ Poker chips are by default 90 degrees off. --]]
