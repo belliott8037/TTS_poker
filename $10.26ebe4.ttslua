@@ -1,9 +1,8 @@
 --[[ The onLoad function. Called when a game finishes loading. --]]
 function onLoad ()
+    self.setName("$10")
     local player_colors = getSeatedPlayers()
-
     local num_chips = Global.getVar('num_50')
-
     for i, v in ipairs(player_colors) do
         for i = 1, num_chips, 1 do
             dealChips({v})

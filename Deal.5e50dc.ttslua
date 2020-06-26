@@ -1,0 +1,9 @@
+function onLoad()
+    deal_button = {
+    	click_function = "play", label = "Deal", position = {0,0.1,0},
+    	rotation = {0,0,0}, width = 500, height = 500, font_size = 200,
+    	function_owner = Global
+    }
+    self.setName("Deal")
+    self.createButton(deal_button)
+end

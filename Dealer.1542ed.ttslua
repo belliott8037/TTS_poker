@@ -1,3 +1,6 @@
+function onLoad()
+    self.setName("Dealer")
+end
 function move_dealer(player_params)
     dealer = player_params[1]
     player_colors = player_params[2]
@@ -9,10 +12,6 @@ function move_dealer(player_params)
             dealer_index = nil
         end
     end
-    -- if dealer_index == nil then
-    --     rgb = {r=1, g=0, b=0}
-	-- 	broadcastToAll("Not Valid Dealer", rgb)
-    -- else
         local next_dealer = (dealer_index + 1) % #player_colors
         if #player_colors == 2 then
             next_dealer = (dealer_index + 1) % 2

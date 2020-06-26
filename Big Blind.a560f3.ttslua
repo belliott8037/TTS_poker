@@ -1,3 +1,7 @@
+function onLoad()
+    self.setName("Big Blind")
+end
+
 function move_blind(player_params)
 -- Find where dealer is sitting
     dealer = player_params[1]
@@ -10,11 +14,6 @@ function move_blind(player_params)
             dealer_index = nil
         end
     end
-    --print(#player_colors)
-    -- if dealer_index == nil then
-    --     rgb = {r=1, g=0, b=0}
-	-- 	broadcastToAll("Not Valid Dealer", rgb)
-    -- else
         local next_big = (dealer_index + 3) % #player_colors
         if #player_colors == 2 then
             next_big = (dealer_index % 2)

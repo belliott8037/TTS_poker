@@ -1,0 +1,3 @@
+function onLoad()
+    self.setName("$500")
+end

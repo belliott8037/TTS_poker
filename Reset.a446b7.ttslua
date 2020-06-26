@@ -1,0 +1,9 @@
+function onLoad()
+    reset_button = {
+    	click_function = "reset_board", label = "Reset", position = {0,0.1,0},
+    	rotation = {0,0,0}, width = 500, height = 500, font_size = 200,
+    	function_owner = Global
+    }
+    self.setName("Reset")
+    self.createButton(reset_button)
+end
