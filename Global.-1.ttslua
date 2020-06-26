@@ -9,7 +9,7 @@ pot_position_100s = {x=1, y=2,z=3}
 pot_position_500s = {x=3, y=2,z=3}
 pot_rotation = {x=0,y=90,z=0}
 discard_rotation = {x=0, y=0, z=0}
-discard_position = {x=-11.75,y=2,z=-1.75}
+discard_position = {x=-11.75,y=3,z=-1.75}
 pot_GUID = "e16aae"
 deck_GUID = "3a8d6b"
 inf_bag_50_GUID = "8e496c"
