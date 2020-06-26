@@ -27,15 +27,11 @@ betting_zone_GUID = {"f3a9a4", "873e94", "444e67", "614799", "eb141f", "38cf8c",
 color_order = {"White", "Red", "Orange", "Yellow","Green","Blue", "Purple","Pink"}
 betting_zone_color = {}
 text_zone = {}
-seated_betting_zone = {}
 fold_button_GUID = "93e5dc"
 -- -- Creating color/zone associations
 for i in ipairs(betting_zone_GUID) do
 	betting_zone_color[betting_zone_GUID[i]] = color_order[i]
 end
--- for i in ipairs(color_order) do
--- 	betting_zone[color_order[i]] = betting_zone_GUID[i]
--- end
 reset_button = {
 	click_function = "reset_board", label = "Reset", position = {0,0.1,0},
 	rotation = {0,0,0}, width = 500, height = 500, font_size = 200,
@@ -152,29 +148,28 @@ end
 -- resets gameboard, takes cards from players hands and table, replaces them in the deck.
 -- if deck does not equal 52 cards after reset, delete old deck, create new deck in its spot
 -- reset state variable
-function reset_board()
+function reset_board(obj, color)
 	state = 0
 	discard_cards = discard_zone.getObjects()
-	if discard_cards[1] != nil then
-		discard_cards[1].setPosition(deck_position)
-	end
-	local table_cards = table_zone.getObjects()
-	for i in ipairs(table_cards) do
-		if table_cards[i].tag == "Card" then
-			table_cards[i].putObject(deck)
-		end
-	end
-	Wait.time(|| deck.shuffle(), 0.75)
-	blinds_params = {dealer, player_colors}
-	if blinds_params[1] == nil then
-		rgb = {r=1, g=0, b=0}
-		broadcastToAll("No Dealer Found", rgb)
+	if color != dealer then
+		-- do nothing
 	else
+		if discard_cards[1] != nil then
+			discard_cards[1].setPosition(deck_position)
+		end
+		local table_cards = table_zone.getObjects()
+		for i in ipairs(table_cards) do
+			if table_cards[i].tag == "Card" then
+				table_cards[i].putObject(deck)
+			end
+		end
+		Wait.time(|| deck.shuffle(), 0.75)
+		blinds_params = {dealer, player_colors}
 		small_blind.call("move_blind",blinds_params)
 		big_blind.call("move_blind",blinds_params)
 		dealer_token.call("move_dealer",blinds_params)
+		add_text.setValue("Total Pot: $0")
 	end
-	add_text.setValue("Total Pot: $0")
 end
 
 function collect_chips()
