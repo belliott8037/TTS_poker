@@ -14,19 +14,22 @@ end
 
 function newDeck()
     -- get objects from white zone
-    object_zone = getObjectFromGUID("f3a9a4")
-    objects = object_zone.getObjects()
+    local deck_found = false
+    local object_zone = getObjectFromGUID("f3a9a4")
+    local objects = object_zone.getObjects()
     if objects[1] != nil then
         for i in ipairs(objects) do
             if objects[i].tag == "Deck" then
                 Global.setVar("deck", getObjectFromGUID(objects[i].guid))
                 rgb = {r=1, g=1, b=0}
                 broadcastToAll("New Deck Set", rgb)
+                deck_found = true
                 break
             end
         end
-    else
-        rgb = {r=1, g=0, b=0}
+    end
+    if deck_found == false then
+        local rgb = {r=1, g=0, b=0}
         broadcastToAll("Place a new deck into White betting zone", rgb)
     end
 end
