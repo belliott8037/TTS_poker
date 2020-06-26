@@ -1,5 +1,3 @@
-discard_position = {x=-11.75,y=2,z=-1.75}
-discard_rotation = {x=0, y=0, z=0}
 function onload()
     button = {}
     button.position = {0, 0, 0}
@@ -16,8 +14,8 @@ end
 function foldHand (object, player)
     local cards = Player[player].getHandObjects()
     for i in pairs(cards) do
-        cards[i].setRotation(discard_rotation)
+        cards[i].setRotation(Global.getVar("discard_rotation"))
         cards[i].flip()
-        Wait.time(|| cards[i].setPosition(discard_position,false,false), 0.5)
+        Wait.time(|| cards[i].setPosition(Global.getVar("discard_position"),false,false), 0.5)
     end
 end

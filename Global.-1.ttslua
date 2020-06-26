@@ -8,6 +8,8 @@ pot_position_50s = {x=-1, y=2,z=3}
 pot_position_100s = {x=1, y=2,z=3}
 pot_position_500s = {x=3, y=2,z=3}
 pot_rotation = {x=0,y=90,z=0}
+discard_rotation = {x=0, y=0, z=0}
+discard_position = {x=-11.75,y=2,z=-1.75}
 pot_GUID = "e16aae"
 deck_GUID = "3a8d6b"
 inf_bag_50_GUID = "8e496c"
@@ -27,7 +29,7 @@ betting_zone_GUID = {"f3a9a4", "873e94", "444e67", "614799", "eb141f", "38cf8c",
 color_order = {"White", "Red", "Orange", "Yellow","Green","Blue", "Purple","Pink"}
 betting_zone_color = {}
 text_zone = {}
-fold_button_GUID = "93e5dc"
+deck_button_GUID = "90319e"
 -- -- Creating color/zone associations
 for i in ipairs(betting_zone_GUID) do
 	betting_zone_color[betting_zone_GUID[i]] = color_order[i]
@@ -79,8 +81,6 @@ function onLoad()
 	pot_zone = getObjectFromGUID(pot_GUID)
 	table_zone = getObjectFromGUID(table_zone_GUID)
 	discard_zone = getObjectFromGUID(discard_zone_GUID)
-	fold_button = getObjectFromGUID(fold_button_GUID)
-	fold_button.setName("Fold")
 	dealer = nil
 	state = 0
 end
