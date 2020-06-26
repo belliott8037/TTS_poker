@@ -16,15 +16,6 @@ end
 function foldHand (object, player)
     local cards = Player[player].getHandObjects()
     for i in pairs(cards) do
-        -- if cards[i].is_face_down == true then
-        --     cards[i].setRotation(discard_rotation)
-        --     cards[i].setPosition(discard_position)
-        -- else
-        --     cards[i].setRotation(discard_rotation)
-        --     cards[i].flip()
-        --     Wait.time(|| cards[i].setPosition(discard_position,false,false), 0.5)
-        --     --Wait.time(|| cards[i].setRotation(discard_rotation), 0.1)
-        -- end
         cards[i].setRotation(discard_rotation)
         cards[i].flip()
         Wait.time(|| cards[i].setPosition(discard_position,false,false), 0.5)

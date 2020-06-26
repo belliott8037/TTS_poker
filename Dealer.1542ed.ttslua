@@ -9,7 +9,6 @@ function move_dealer(player_params)
             dealer_index = nil
         end
     end
-    --print(#player_colors)
     if dealer_index == nil then
         rgb = {r=1, g=0, b=0}
 		broadcastToAll("Not Valid Dealer", rgb)

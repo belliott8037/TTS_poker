@@ -1,4 +1,3 @@
--- Testing changes
 num_10 = 20
 num_50 = 20
 num_100 = 13
@@ -16,7 +15,6 @@ inf_bag_100_GUID = "a9e126"
 inf_bag_500_GUID = "9a0f18"
 inf_bag_10_GUID = "26ebe4"
 dealer_token_GUID = "1542ed"
-table_zone_GUID = "7e94a9"
 discard_zone_GUID = "960f61"
 BB_GUID = "a560f3"
 SB_GUID = "a3ca23"
@@ -38,17 +36,17 @@ end
 -- for i in ipairs(color_order) do
 -- 	betting_zone[color_order[i]] = betting_zone_GUID[i]
 -- end
-
-deal_button = {
-	click_function = "play", label = "Deal", position = {0,0.1,0},
-	rotation = {0,0,0}, width = 500, height = 500, font_size = 200,
-	function_owner = nil
-}
 reset_button = {
 	click_function = "reset_board", label = "Reset", position = {0,0.1,0},
 	rotation = {0,0,0}, width = 500, height = 500, font_size = 200,
 	function_owner = nil
 }
+deal_button = {
+	click_function = "play", label = "Deal", position = {0,0.1,0},
+	rotation = {0,0,0}, width = 500, height = 500, font_size = 200,
+	function_owner = nil
+}
+
 collect_button = {
 	click_function = "collect_chips", label = "Collect\nBets", position = {0,0.1,0},
 	rotation = {0,0,0}, width = 550, height = 550, font_size = 200,
@@ -85,7 +83,6 @@ function onLoad()
 	pot_zone = getObjectFromGUID(pot_GUID)
 	table_zone = getObjectFromGUID(table_zone_GUID)
 	discard_zone = getObjectFromGUID(discard_zone_GUID)
-	table_zone = getObjectFromGUID(table_zone_GUID)
 	fold_button = getObjectFromGUID(fold_button_GUID)
 	fold_button.setName("Fold")
 	dealer = nil
