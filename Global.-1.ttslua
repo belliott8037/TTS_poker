@@ -26,7 +26,7 @@ collect_bets_GUID = "2f1c02"
 total_bets_text_GUID = "70817b"
 table_zone_GUID = "25070a"
 betting_zone_GUID = {"f3a9a4", "873e94", "444e67", "614799", "eb141f", "38cf8c", "7eea62", "f9a8e0"}
-color_order = {"White", "Red", "Orange", "Yellow","Green","Blue", "Purple","Pink"}
+color_order = {"White", "Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Pink"}
 betting_zone_color = {}
 text_zone = {}
 deck_button_GUID = "90319e"
@@ -44,7 +44,6 @@ function onLoad()
     inf_bag_500 = getObjectFromGUID(inf_bag_500_GUID)
     inf_bag_10 = getObjectFromGUID(inf_bag_10_GUID)
 	dealer_token = getObjectFromGUID(dealer_token_GUID)
-    player_colors = getSeatedPlayers()
 	deal = getObjectFromGUID(deal_GUID)
 	reset = getObjectFromGUID(reset_GUID)
 	collect = getObjectFromGUID(collect_bets_GUID)
@@ -52,6 +51,7 @@ function onLoad()
 	pot_zone = getObjectFromGUID(pot_GUID)
 	table_zone = getObjectFromGUID(table_zone_GUID)
 	discard_zone = getObjectFromGUID(discard_zone_GUID)
+	player_colors = getSeatedPlayers()
 	dealer = nil
 	state = 0
 end
@@ -59,8 +59,18 @@ end
 function onPlayerChangedColor(color)
     if color != 'Grey' and color != 'Black' then
         dealInitialChips(color)
-		player_colors = getSeatedPlayers()
+		getOrder()
     end
+end
+
+function getOrder()
+	local j = 1
+	for i in ipairs(color_order) do
+		if Player[color_order[i]].seated then
+			player_colors[j] = color_order[i]
+			j = j + 1
+		end
+	end
 end
 
 function onObjectEnterScriptingZone(zone, obj)
@@ -81,18 +91,8 @@ function getColor(zone_guid)
 	return betting_zone_color[zone_guid]
 end
 
-function isValidDealer(color)
-	for i in ipairs(player_colors) do
-		if color == player_colors[i] then
-			return true
-		end
-	end
-	return false
-end
-
-
 function play(obj,color)
-	if isValidDealer(dealer) then
+	if color == dealer then
 		if state == 0 or state == 1 then
 			-- Deal clockwise from dealer.
 			deal_params = {dealer, player_colors}
@@ -132,7 +132,7 @@ function reset_board(obj, color)
 	state = 0
 	discard_cards = discard_zone.getObjects()
 	if color != dealer then
-		-- do nothing
+		print("Dealer can only reset")
 	else
 		if discard_cards[1] != nil then
 			discard_cards[1].setPosition(deck_position)
@@ -201,4 +201,28 @@ function dealInitialChips(color)
     for i = 1, num_10 do
         inf_bag_10.call('dealChips', {color})
     end
+end
+
+-- NOTE this works in theory, global probably needs the Deck functions in global as well.
+function newDeck()
+
+	-- local deck_found = false
+	-- local object_zone = getObjectFromGUID("f3a9a4")
+	-- local objects = object_zone.getObjects()
+	-- if objects[1] != nil then
+	-- 	for i, v in ipairs(objects) do
+	-- 		if v.tag == "Deck" then
+	-- 			deck = {}
+	-- 			deck = getObjectFromGUID(v.getGUID())
+	-- 			rgb = {r=1, g=1, b=0}
+	-- 			broadcastToAll("New Deck Set", rgb)
+	-- 			deck_found = true
+	-- 			return 1
+	-- 		end
+	-- 	end
+	-- end
+	-- if deck_found == false then
+	-- 	local rgb = {r=1, g=0, b=0}
+	-- 	broadcastToAll("Place a new deck into White betting zone", rgb)
+	-- end
 end
