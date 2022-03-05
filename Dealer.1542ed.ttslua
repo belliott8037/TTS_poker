@@ -1,0 +1,28 @@
+function onLoad()
+    self.setName("Dealer")
+end
+function move_dealer(player_params)
+    dealer = player_params[1]
+    player_colors = player_params[2]
+    for i in ipairs(player_colors) do
+        if dealer == player_colors[i] then
+            dealer_index = i
+            break
+        else
+            dealer_index = nil
+        end
+    end
+        local next_dealer = (dealer_index + 1) % #player_colors
+        if #player_colors == 2 then
+            next_dealer = (dealer_index + 1) % 2
+        end
+        if next_dealer == 0  then
+            next_dealer = #player_colors
+        end
+        local player_hand = Player[player_colors[next_dealer]].getPlayerHand()
+        local position = {}
+        position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * 4 + player_hand['trigger_right_x'] * -2
+        position['y'] = player_hand['pos_y'] + 0.25
+        position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * 4 + player_hand['trigger_right_z'] * -2
+        self.setPosition(position)
+end

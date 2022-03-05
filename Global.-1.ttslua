@@ -1,44 +1,194 @@
-deck_GUID = "3a8d6b" -- Deck GUID
+num_10 = 20
+num_50 = 20
+num_100 = 13
+deck_position = {x=-8,y=3,z=-2}
+deck_rotation = {x=0,y=0,z=0}
+pot_position_10s = {x=-3, y=2,z=3}
+pot_position_50s = {x=-1, y=2,z=3}
+pot_position_100s = {x=1, y=2,z=3}
+pot_position_500s = {x=3, y=2,z=3}
+pot_rotation = {x=0,y=90,z=0}
+discard_rotation = {x=0, y=0, z=0}
+discard_position = {x=-11.75,y=3,z=-1.75}
+pot_GUID = "e16aae"
+deck_GUID = "3a8d6b"
 inf_bag_50_GUID = "8e496c"
 inf_bag_100_GUID = "a9e126"
 inf_bag_500_GUID = "9a0f18"
-inf_bag_1000_GUID = "6d5768"
-dealer_button_GUID = "1542ed"
-dealer_GUID = "5e50dc"
-num_50 = 10
-num_100 = 5
-num_500 = 1
-num_1000 = 1
-deal_button = {
-	click_function = "deal", label = "Deal", position = {0,0.1,0},
-	rotation = {0,0,0}, width = 500, height = 500, font_size = 200,
-	function_owner = nil
-}
-betting_zones_GUID = {"f3a9a4", "873e94", "444e67", "614799", "eb141f", "38cf8c", "7eea62", "f9a8e0"}
---					   white,    red,	   orange,	 yellow,   green,	 blue,	   purple,	 pink
-betting_zones = {}
-
+inf_bag_10_GUID = "26ebe4"
+dealer_token_GUID = "1542ed"
+discard_zone_GUID = "960f61"
+BB_GUID = "a560f3"
+SB_GUID = "a3ca23"
+deal_GUID = "5e50dc"
+reset_GUID = "a446b7"
+collect_bets_GUID = "2f1c02"
+total_bets_text_GUID = "70817b"
+table_zone_GUID = "25070a"
+betting_zone_GUID = {"f3a9a4", "873e94", "444e67", "614799", "eb141f", "38cf8c", "7eea62", "f9a8e0"}
+color_order = {"White", "Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Pink"}
+betting_zone_color = {}
+text_zone = {}
+deck_button_GUID = "90319e"
+-- -- Creating color/zone associations
+for i in ipairs(betting_zone_GUID) do
+	betting_zone_color[betting_zone_GUID[i]] = color_order[i]
+end
 --[[ The onLoad event is called after the game save finishes loading. --]]
 function onLoad()
     deck = getObjectFromGUID(deck_GUID)
     inf_bag_50 = getObjectFromGUID(inf_bag_50_GUID)
+	big_blind = getObjectFromGUID(BB_GUID)
+	small_blind = getObjectFromGUID(SB_GUID)
     inf_bag_100 = getObjectFromGUID(inf_bag_100_GUID)
     inf_bag_500 = getObjectFromGUID(inf_bag_500_GUID)
-    inf_bag_1000 = getObjectFromGUID(inf_bag_1000_GUID)
-    dealer = getObjectFromGUID(dealer_GUID)
-	dealer_button = getObjectFromGUID(dealer_button_GUID)
-    player_colors = getSeatedPlayers()
-    dealer.createButton(deal_button)
-
-for i, v in ipairs(betting_zones_GUID) do
-	    betting_zones[i] = getObjectFromGUID(v)
-	end
+    inf_bag_10 = getObjectFromGUID(inf_bag_10_GUID)
+	dealer_token = getObjectFromGUID(dealer_token_GUID)
+	deal = getObjectFromGUID(deal_GUID)
+	reset = getObjectFromGUID(reset_GUID)
+	collect = getObjectFromGUID(collect_bets_GUID)
+	add_text = getObjectFromGUID(total_bets_text_GUID)
+	pot_zone = getObjectFromGUID(pot_GUID)
+	table_zone = getObjectFromGUID(table_zone_GUID)
+	discard_zone = getObjectFromGUID(discard_zone_GUID)
+	player_colors = getSeatedPlayers()
+	dealer = nil
+	state = 0
 end
 
 function onPlayerChangedColor(color)
     if color != 'Grey' and color != 'Black' then
         dealInitialChips(color)
+		getOrder()
     end
+end
+
+function getOrder()
+	local j = 1
+	for i in ipairs(color_order) do
+		if Player[color_order[i]].seated then
+			player_colors[j] = color_order[i]
+			j = j + 1
+		end
+	end
+end
+
+function onObjectEnterScriptingZone(zone, obj)
+	if obj.getGUID() == dealer_token.guid then
+		dealer = getColor(zone.guid)
+		return dealer
+	end
+end
+
+function onObjectLeaveScriptingZone(zone, leave_object)
+	if leave_object.getGUID() == dealer_token.guid and zone.guid != table_zone_GUID and zone.guid != pot_GUID then
+		dealer = nil
+		return dealer
+	end
+end
+
+function getColor(zone_guid)
+	return betting_zone_color[zone_guid]
+end
+
+function play(obj,color)
+	if color == dealer then
+		if state == 0 or state == 1 then
+			-- Deal clockwise from dealer.
+			deal_params = {dealer, player_colors}
+			deck.call("deal", deal_params)
+			if state == 0 then
+				state = 1
+			else
+				state = 2
+			end
+		elseif state == 2 then
+			collect_chips()
+		 	deck.call("flop")
+			state = 3
+		elseif state == 3 then
+			collect_chips()
+			deck.call("turn")
+			state = 4
+		elseif state == 4 then
+			collect_chips()
+			deck.call("river")
+			state = 5
+		else
+			rgb = {r=1, g=1, b=0}
+			broadcastToAll("SHOWDOWN", rgb)
+			collect_chips()
+		end
+	else
+		rgb = {r=1, g=0, b=0}
+		broadcastToAll("Invalid Dealer", rgb)
+	end
+end
+
+-- resets gameboard, takes cards from players hands and table, replaces them in the deck.
+-- if deck does not equal 52 cards after reset, delete old deck, create new deck in its spot
+-- reset state variable
+function reset_board(obj, color)
+	state = 0
+	discard_cards = discard_zone.getObjects()
+	if color != dealer then
+		print("Dealer can only reset")
+	else
+		if discard_cards[1] != nil then
+			discard_cards[1].setPosition(deck_position)
+		end
+		local table_cards = table_zone.getObjects()
+		for i in ipairs(table_cards) do
+			if table_cards[i].tag == "Card" then
+				table_cards[i].putObject(deck)
+			end
+		end
+		Wait.time(|| deck.shuffle(), 0.75)
+		blinds_params = {dealer, player_colors}
+		small_blind.call("move_blind",blinds_params)
+		big_blind.call("move_blind",blinds_params)
+		dealer_token.call("move_dealer",blinds_params)
+		add_text.setValue("Total Pot: $0")
+	end
+end
+
+function collect_chips()
+	local zone_objects = {}
+	for i in pairs(betting_zone_GUID) do
+		local object_zone = getObjectFromGUID(betting_zone_GUID[i])
+		zone_objects[i] = object_zone.getObjects()
+		for j in ipairs(zone_objects[i]) do
+			if zone_objects[i][j].getValue() == 10 then
+				zone_objects[i][j].setPosition(pot_position_10s)
+				zone_objects[i][j].setRotation(pot_rotation)
+			elseif zone_objects[i][j].getValue() == 50 then
+				zone_objects[i][j].setPosition(pot_position_50s)
+				zone_objects[i][j].setRotation(pot_rotation)
+			elseif zone_objects[i][j].getValue() == 100 then
+				zone_objects[i][j].setPosition(pot_position_100s)
+				zone_objects[i][j].setRotation(pot_rotation)
+			elseif zone_objects[i][j].getValue() == 500 then
+				zone_objects[i][j].setPosition(pot_position_500s)
+				zone_objects[i][j].setRotation(pot_rotation)
+			end
+		end
+	end
+
+	Wait.time(function() add_chips(pot_zone,add_text) end, 0.03)
+end
+function add_chips(zone,text)
+	local total_objects = zone.getObjects()
+	local total = 0
+	for i in ipairs(total_objects) do
+		if total_objects[i].tag == "Chip" then
+			if total_objects[i].getQuantity() != -1 then
+				total = total + total_objects[i].getQuantity() * total_objects[i].getValue()
+			else
+				total = total + total_objects[i].getValue()
+			end
+		end
+	end
+	text.setValue("Total Pot: $"..total)
 end
 
 function dealInitialChips(color)
@@ -48,21 +198,31 @@ function dealInitialChips(color)
     for i = 1, num_100 do
         inf_bag_100.call('dealChips', {color})
     end
-    for i = 1, num_500 do
-        inf_bag_500.call('dealChips', {color})
-    end
-    for i = 1, num_1000 do
-        inf_bag_1000.call('dealChips', {color})
+    for i = 1, num_10 do
+        inf_bag_10.call('dealChips', {color})
     end
 end
-function deal(obj,color)
-	players = {}
-	for i in ipairs(betting_zones) do
-		if betting_zones[i].getObjects()[1] == dealer_button then
-			print("FOUND IT! ")
-			break
-		else
-			print("Can't find it")
-		end
-	end
+
+-- NOTE this works in theory, global probably needs the Deck functions in global as well.
+function newDeck()
+
+	-- local deck_found = false
+	-- local object_zone = getObjectFromGUID("f3a9a4")
+	-- local objects = object_zone.getObjects()
+	-- if objects[1] != nil then
+	-- 	for i, v in ipairs(objects) do
+	-- 		if v.tag == "Deck" then
+	-- 			deck = {}
+	-- 			deck = getObjectFromGUID(v.getGUID())
+	-- 			rgb = {r=1, g=1, b=0}
+	-- 			broadcastToAll("New Deck Set", rgb)
+	-- 			deck_found = true
+	-- 			return 1
+	-- 		end
+	-- 	end
+	-- end
+	-- if deck_found == false then
+	-- 	local rgb = {r=1, g=0, b=0}
+	-- 	broadcastToAll("Place a new deck into White betting zone", rgb)
+	-- end
 end

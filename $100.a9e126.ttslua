@@ -1,14 +1,14 @@
 --[[ The onLoad function. Called when a game finishes loading. --]]
 function onLoad ()
+    self.setName("$100")
     local player_colors = getSeatedPlayers()
-
     local num_chips = Global.getVar('num_100')
-
     for i, v in ipairs(player_colors) do
         for i = 1, num_chips, 1 do
             dealChips({v})
         end
     end
+
 end
 
 --[[ player_color is a Table because we call it from another script and we can only pass in variables from other scripts as Tables. --]]
@@ -20,24 +20,11 @@ function dealChips(player_color)
 
     local player_hand = Player[player_color[1]].getPlayerHand()
     local position = {}
-    position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * 4.5 + player_hand['trigger_right_x'] * -2
-    position['y'] = player_hand['pos_y']
-    position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * 4 + player_hand['trigger_right_z'] * -2
-
-    local callback_params = {}
-    callback_params['player_color'] = player_color[1]
-
+    position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * -4.5 + player_hand['trigger_right_x'] * 2
+    position['y'] = player_hand['pos_y'] + 1
+    position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * -4 + player_hand['trigger_right_z'] * 2
     local params = {}
     params.position = {position.x, position.y, position.z}
     params.rotation = {0, player_hand['rot_y'] + 90, 0} --[[ Poker chips are by default 90 degrees off. --]]
-    params.callback = 'chipCallback'
-    params.params = callback_params
-
     self.takeObject(params)
 end
-function chipCallback(spawnedChip, params)
-    --[[ Chip stacking is weird - it deletes the chips that go into the stack and spawns new ones as they are pulled off.
-    So we must set the Lua script code here instead of having it preinitialized on the chip itself before going into the
-    infinte bag and changing the values after pulling the chip out of the bag. --]]
-    spawnedChip.setLuaScript('type = \'chip\'\nvalue = 100\nplayer = \'' .. params['player_color'] .. '\'')
- end

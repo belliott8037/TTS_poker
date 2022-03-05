@@ -1,0 +1,9 @@
+function onLoad()
+    collect_button = {
+    	click_function = "collect_chips", label = "Collect\nBets", position = {0,0.1,0},
+    	rotation = {0,0,0}, width = 550, height = 550, font_size = 200,
+    	function_owner = Global
+    }
+    self.setName("Collect Bets")
+    self.createButton(collect_button)
+end
