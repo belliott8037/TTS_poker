@@ -15,9 +15,11 @@ function move_dealer(player_params)
         local next_dealer = (dealer_index + 1) % #player_colors
         if #player_colors == 2 then
             next_dealer = (dealer_index + 1) % 2
+            dealer = player_colors[next_dealer]
         end
         if next_dealer == 0  then
             next_dealer = #player_colors
+            dealer = player_colors[next_dealer]
         end
         local player_hand = Player[player_colors[next_dealer]].getPlayerHand()
         local position = {}
@@ -25,4 +27,6 @@ function move_dealer(player_params)
         position['y'] = player_hand['pos_y'] + 0.25
         position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * 4 + player_hand['trigger_right_z'] * -2
         self.setPosition(position)
+        dealer = player_colors[next_dealer]
+        return dealer
 end

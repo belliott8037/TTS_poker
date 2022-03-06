@@ -1,38 +1,41 @@
 function onLoad()
-    self.shuffle()
+  self.use_hands = true
+  self.shuffle()
 end
 
 function deal(deal_params)
-    self.use_hands = true
+
     local player_order = {}
     local timer = 0
     local j = 1
-    dealer = deal_params[1] -- dealer = zone where token is
-    player_colors = deal_params[2] -- table of players
+    dealer = deal_params[1] -- dealer = zone where token is as color name
+    player_colors = deal_params[2] -- table of ordered players, color name
+    -- This finds the index of what color the dealer is
     for i in ipairs(player_colors) do
         if dealer == player_colors[i] then
             dealer_index = i
             break
         end
     end
+    -- NOTE: wtf is this max doing bro
     local max = dealer_index + #player_colors
     -- build correct dealing order
     for i = dealer_index, max do
-        index = i % #player_colors + 1
-        -- NOTE might not need this check..
-        if index == dealer_index then
-            player_order[j] = player_colors[index]
-            break
-        else
-            player_order[j] = player_colors[index]
-            j = j + 1
-        end
+      index = i % #player_colors + 1
+      if index == dealer_index then
+        player_order[j] = player_colors[index]
+        break
+      else
+        player_order[j] = player_colors[index]
+        j = j + 1
+      end
     end
 -- NOTE: If you decide to uncomment the extra loop be sure to update states accordingly
+-- this extra for loop deals two cards per round instead of one
 --    for j = 1,2 do
         for i in ipairs(player_order) do
-            Wait.time(function() deal_one(player_order[i]) end, timer)
-            timer = timer + 0.25
+          Wait.time(function() deal_one(player_order[i]) end, timer)
+          timer = timer + 0.25
         end
 --    end
 end

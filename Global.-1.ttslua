@@ -12,10 +12,10 @@ discard_rotation = {x=0, y=0, z=0}
 discard_position = {x=-11.75,y=3,z=-1.75}
 pot_GUID = "e16aae"
 deck_GUID = "3a8d6b"
+inf_bag_10_GUID = "26ebe4"
 inf_bag_50_GUID = "8e496c"
 inf_bag_100_GUID = "a9e126"
 inf_bag_500_GUID = "9a0f18"
-inf_bag_10_GUID = "26ebe4"
 dealer_token_GUID = "1542ed"
 discard_zone_GUID = "960f61"
 BB_GUID = "a560f3"
@@ -25,24 +25,26 @@ reset_GUID = "a446b7"
 collect_bets_GUID = "2f1c02"
 total_bets_text_GUID = "70817b"
 table_zone_GUID = "25070a"
+-- TODO: Turn this into a table dumbass
 betting_zone_GUID = {"f3a9a4", "873e94", "444e67", "614799", "eb141f", "38cf8c", "7eea62", "f9a8e0"}
-color_order = {"White", "Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Pink"}
+color_order = {"White","Red","Orange","Yellow","Green","Blue","Purple","Pink"}
 betting_zone_color = {}
 text_zone = {}
 deck_button_GUID = "90319e"
--- -- Creating color/zone associations
+player_colors = {}
+-- -- Creating color/zone associations because i'm not using a table like a dumbass
 for i in ipairs(betting_zone_GUID) do
 	betting_zone_color[betting_zone_GUID[i]] = color_order[i]
 end
 --[[ The onLoad event is called after the game save finishes loading. --]]
 function onLoad()
-    deck = getObjectFromGUID(deck_GUID)
-    inf_bag_50 = getObjectFromGUID(inf_bag_50_GUID)
-	big_blind = getObjectFromGUID(BB_GUID)
+  deck = getObjectFromGUID(deck_GUID)
+	inf_bag_10 = getObjectFromGUID(inf_bag_10_GUID)
+	inf_bag_50 = getObjectFromGUID(inf_bag_50_GUID)
+	inf_bag_100 = getObjectFromGUID(inf_bag_100_GUID)
+  inf_bag_500 = getObjectFromGUID(inf_bag_500_GUID)
 	small_blind = getObjectFromGUID(SB_GUID)
-    inf_bag_100 = getObjectFromGUID(inf_bag_100_GUID)
-    inf_bag_500 = getObjectFromGUID(inf_bag_500_GUID)
-    inf_bag_10 = getObjectFromGUID(inf_bag_10_GUID)
+	big_blind = getObjectFromGUID(BB_GUID)
 	dealer_token = getObjectFromGUID(dealer_token_GUID)
 	deal = getObjectFromGUID(deal_GUID)
 	reset = getObjectFromGUID(reset_GUID)
@@ -51,19 +53,28 @@ function onLoad()
 	pot_zone = getObjectFromGUID(pot_GUID)
 	table_zone = getObjectFromGUID(table_zone_GUID)
 	discard_zone = getObjectFromGUID(discard_zone_GUID)
+	-- this is a function not an event so this might not get an accurate list
+	-- if a player changes seats vs loads in the game to trigger onLoad
 	player_colors = getSeatedPlayers()
+	-- NOTE: Test this. It might be covering the case when a player loads into a
+	-- table but doesn't choose a color to run the getOrder() function
+	getOrder()
+	-- player_colors = {"White", "Red", "Orange", "Pink"}
 	dealer = nil
 	state = 0
 end
 
 function onPlayerChangedColor(color)
+-- Player defaults to grey when choosing a color then when sitting at a seat it updates again
     if color != 'Grey' and color != 'Black' then
         dealInitialChips(color)
+		end
 		getOrder()
-    end
 end
-
+-- This function updates the player_colors array when player changes colors
 function getOrder()
+	-- color_order = {"White",  "Red", "Orange",Yellow","Green""Blue", "Purple","Pink"}
+	player_colors = {}
 	local j = 1
 	for i in ipairs(color_order) do
 		if Player[color_order[i]].seated then
@@ -72,25 +83,32 @@ function getOrder()
 		end
 	end
 end
-
+-- This function gets the color zone dealer token is at
 function onObjectEnterScriptingZone(zone, obj)
 	if obj.getGUID() == dealer_token.guid then
 		dealer = getColor(zone.guid)
 		return dealer
 	end
 end
-
-function onObjectLeaveScriptingZone(zone, leave_object)
-	if leave_object.getGUID() == dealer_token.guid and zone.guid != table_zone_GUID and zone.guid != pot_GUID then
-		dealer = nil
-		return dealer
-	end
-end
-
+-- This function resets the dealer color NOTE: ANDS are making sure it's not leaving
+-- the table_zone, or the pot zone, so just looking at betting zone leaves
+-- function onObjectLeaveScriptingZone(zone, leave_object)
+-- 	if leave_object.getGUID() == dealer_token.guid and zone.guid != table_zone_GUID and zone.guid != pot_GUID then
+-- 		dealer = nil
+-- 		return dealer
+-- 	end
+-- end
+-- This just returns the color given the zone id
 function getColor(zone_guid)
 	return betting_zone_color[zone_guid]
 end
 
+-- STATES: 0 and 1 = deal 1 card
+-- 2 = deal the flop
+-- 3 deal the turn
+-- 4 deal the river
+-- 5 = collect chips and display "SHOWDOWN" text
+-- NOTE: nil is called when dealer chip is displaced by move dealer function
 function play(obj,color)
 	if color == dealer then
 		if state == 0 or state == 1 then
@@ -151,7 +169,7 @@ function reset_board(obj, color)
 		add_text.setValue("Total Pot: $0")
 	end
 end
-
+-- Goes through all the zones and takes the chips into the pot
 function collect_chips()
 	local zone_objects = {}
 	for i in pairs(betting_zone_GUID) do
@@ -176,6 +194,8 @@ function collect_chips()
 
 	Wait.time(function() add_chips(pot_zone,add_text) end, 0.03)
 end
+-- Takes the chips in the pot zone and does some math to figure out how much
+-- it's worth, updates text to accurate number
 function add_chips(zone,text)
 	local total_objects = zone.getObjects()
 	local total = 0
@@ -190,7 +210,7 @@ function add_chips(zone,text)
 	end
 	text.setValue("Total Pot: $"..total)
 end
-
+-- Just deals the intial chips to the color called triggered by onPlayerChangedColor
 function dealInitialChips(color)
     for i = 1, num_50 do
         inf_bag_50.call('dealChips', {color})
