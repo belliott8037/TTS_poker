@@ -11,7 +11,9 @@ function onLoad()
   self.setName("New Deck")
   self.createButton(button)
 end
-
+-- This function sets a new deck if one gets destroyed by a griefing player or
+-- by accident by drawing all the cards in the deck making the first deck guid
+-- unfindable
 function newDeck()
     -- get objects from white zone
   local deck_found = false

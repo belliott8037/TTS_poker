@@ -32,10 +32,10 @@ function deal(deal_params)
 -- NOTE: If you decide to uncomment the extra loop be sure to update states accordingly
 -- this extra for loop deals two cards per round instead of one
 --    for j = 1,2 do
-        for i in ipairs(player_order) do
-          Wait.time(function() deal_one(player_order[i]) end, timer)
-          timer = timer + 0.25
-        end
+  for i in ipairs(player_order) do
+    Wait.time(function() deal_one(player_order[i]) end, timer)
+    timer = timer + 0.25
+  end
 --    end
 end
 
