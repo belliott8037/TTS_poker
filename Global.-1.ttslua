@@ -67,7 +67,7 @@ end
 function onPlayerChangedColor(color)
 -- Player defaults to grey when choosing a color then when sitting at a seat it updates again
     if color != 'Grey' and color != 'Black' then
-        dealInitialChips(color)
+      dealInitialChips(color)
 		end
 		getOrder()
 end
@@ -212,15 +212,15 @@ function add_chips(zone,text)
 end
 -- Just deals the intial chips to the color called triggered by onPlayerChangedColor
 function dealInitialChips(color)
-    for i = 1, num_50 do
-        inf_bag_50.call('dealChips', {color})
-    end
-    for i = 1, num_100 do
-        inf_bag_100.call('dealChips', {color})
-    end
-    for i = 1, num_10 do
-        inf_bag_10.call('dealChips', {color})
-    end
+  for i = 1, num_50 do
+    inf_bag_50.call('dealChips', {color})
+  end
+  for i = 1, num_100 do
+    inf_bag_100.call('dealChips', {color})
+  end
+  for i = 1, num_10 do
+    inf_bag_10.call('dealChips', {color})
+  end
 end
 
 -- NOTE this works in theory, global probably needs the Deck functions in global as well.

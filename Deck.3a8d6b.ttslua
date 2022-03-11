@@ -4,32 +4,31 @@ function onLoad()
 end
 
 function deal(deal_params)
-
-    local player_order = {}
-    local timer = 0
-    local j = 1
-    dealer = deal_params[1] -- dealer = zone where token is as color name
-    player_colors = deal_params[2] -- table of ordered players, color name
-    -- This finds the index of what color the dealer is
-    for i in ipairs(player_colors) do
-        if dealer == player_colors[i] then
-            dealer_index = i
-            break
-        end
+  local player_order = {}
+  local timer = 0
+  local j = 1
+  dealer = deal_params[1] -- dealer = zone where token is as color name
+  player_colors = deal_params[2] -- table of ordered players, color name
+  -- This finds the index of what color the dealer is
+  for i in ipairs(player_colors) do
+    if dealer == player_colors[i] then
+      dealer_index = i
+      break
     end
-    -- NOTE: wtf is this max doing bro
-    local max = dealer_index + #player_colors
-    -- build correct dealing order
-    for i = dealer_index, max do
-      index = i % #player_colors + 1
-      if index == dealer_index then
-        player_order[j] = player_colors[index]
-        break
-      else
-        player_order[j] = player_colors[index]
-        j = j + 1
-      end
+  end
+  -- NOTE: wtf is this max doing bro
+  local max = dealer_index + #player_colors
+  -- build correct dealing order
+  for i = dealer_index, max do
+    index = i % #player_colors + 1
+    if index == dealer_index then
+      player_order[j] = player_colors[index]
+      break
+    else
+      player_order[j] = player_colors[index]
+      j = j + 1
     end
+  end
 -- NOTE: If you decide to uncomment the extra loop be sure to update states accordingly
 -- this extra for loop deals two cards per round instead of one
 --    for j = 1,2 do
@@ -41,50 +40,50 @@ function deal(deal_params)
 end
 
 function deal_one(player_color)
-    self.deal(1,player_color)
+  self.deal(1,player_color)
 end
 
 function flop()
-    local timer = 0
-    kill()
-    local flop_params = {
-        position = {x=-5.6, y=4, z=-2},
-        flip = true
-    }
-    x_table = {-5.6, -2.8, 0}
-    for i = 1,3 do
-        Wait.time(function() slow_flip(flop_params,x_table[i]) end, timer)
-        timer = timer + 0.5
-    end
+  local timer = 0
+  kill()
+  local flop_params = {
+    position = {x=-5.6, y=4, z=-2},
+    flip = true
+  }
+  x_table = {-5.6, -2.8, 0}
+  for i = 1,3 do
+    Wait.time(function() slow_flip(flop_params,x_table[i]) end, timer)
+    timer = timer + 0.5
+  end
  end
  function slow_flip(flip_params, x_val)
-     flip_params.position.x = x_val
-     self.takeObject(flip_params)
+  flip_params.position.x = x_val
+  self.takeObject(flip_params)
  end
 
 function turn()
-    kill()
-    local turn_params = {
-        position = {x=2.75, y=4, z=-2},
-        flip = true
-    }
-    Wait.time(function () slow_flip(turn_params,turn_params.position.x) end,0.5)
+  kill()
+  local turn_params = {
+    position = {x=2.75, y=4, z=-2},
+    flip = true
+  }
+  Wait.time(function () slow_flip(turn_params,turn_params.position.x) end,0.5)
 end
 
 function river()
-    kill()
-    local river_params = {
-        position = {x=5.55, y=4, z=-2},
-        flip = true
-    }
-    Wait.time(function() slow_flip(river_params,river_params.position.x) end, 0.5)
+  kill()
+  local river_params = {
+  position = {x=5.55, y=4, z=-2},
+  flip = true
+  }
+  Wait.time(function() slow_flip(river_params,river_params.position.x) end, 0.5)
 end
 
 function kill()
-    -- place the top card of the deck into the discard pile
-    -- cannot use global.getVar since it cannot return a table.
-    local kill_params = {
-        position = {x=-11.7, y=3, z=-1.75}
-    }
-    self.takeObject(kill_params)
+  -- place the top card of the deck into the discard pile
+  -- cannot use global.getVar since it cannot return a table.
+  local kill_params = {
+    position = {x=-11.7, y=3, z=-1.75}
+  }
+  self.takeObject(kill_params)
 end
