@@ -13,10 +13,8 @@ function onLoad()
 end
 -- This function sets a new deck if one gets destroyed by a griefing player or
 -- by accident by drawing all the cards in the deck making the first deck guid
--- unfindable currently doesn't work when original deck is destroyed. functions
--- are lost along with the deck
-
---NOTE:  spawn a new deck then Get/SetLuaScript()
+-- unfindable. This is doable by getting the script of the deck at the onLoad
+-- and setting the script to the new deck spawned from this function
 function newDeck()
   local deck_params = {
     type = "Deck",
