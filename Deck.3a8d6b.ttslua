@@ -16,7 +16,6 @@ function deal(deal_params)
       break
     end
   end
-  -- NOTE: wtf is this max doing bro
   local max = dealer_index + #player_colors
   -- build correct dealing order
   for i = dealer_index, max do

@@ -12,10 +12,6 @@ end
 
 --[[ player_color is a Table because we call it from another script and we can only pass in variables from other scripts as Tables. --]]
 function dealChips(player_color)
-  if not Player[player_color[1]].seated then
-    print('Player ' .. player_color[1] .. ' is nil or not seated at the table!')
-    return
-  end
   local player_hand = Player[player_color[1]].getPlayerHand()
   local position = {}
   if player_color[1] == "White" then
@@ -34,5 +30,6 @@ function dealChips(player_color)
   local params = {}
   params.position = {position.x, position.y, position.z}
   params.rotation = {0, player_hand['rot_y'] + 90, 0} --[[ Poker chips are by default 90 degrees off. --]]
+  params.smooth = false
   self.takeObject(params)
 end

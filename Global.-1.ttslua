@@ -1,7 +1,7 @@
 num_10 = 20
 num_50 = 20
 num_100 = 13
-deck_position = {x=-8,y=3,z=-2}
+deck_position = {x=-8.5,y=2,z=-2}
 deck_rotation = {x=0,y=0,z=0}
 pot_position_10s = {x=-3, y=2,z=3}
 pot_position_50s = {x=-1, y=2,z=3}
@@ -10,7 +10,7 @@ pot_position_500s = {x=3, y=2,z=3}
 pot_rotation = {x=0,y=90,z=0}
 discard_rotation = {x=0, y=0, z=0}
 discard_position = {x=-11.75,y=3,z=-1.75}
-pot_GUID = "e16aae"
+pot_GUID = "53b30a"
 deck_GUID = "3a8d6b"
 inf_bag_10_GUID = "26ebe4"
 inf_bag_50_GUID = "8e496c"
@@ -24,13 +24,24 @@ deal_GUID = "5e50dc"
 reset_GUID = "a446b7"
 collect_bets_GUID = "2f1c02"
 total_bets_text_GUID = "70817b"
-table_zone_GUID = "25070a"
--- TODO: Turn this into a table dumbass
-betting_zone_GUID = {"f3a9a4", "873e94", "444e67", "614799", "eb141f", "38cf8c", "7eea62", "f9a8e0"}
+table_zone_GUID = "0e25c7"
+deck_button_GUID = "90319e"
+betting_zone_GUID = {"f3a9a4", "873e94", "eb966b", "14ccd8", "8e07ed", "49c7b4", "7eea62", "f9a8e0"}
 color_order = {"White","Red","Orange","Yellow","Green","Blue","Purple","Pink"}
+-- using a dictionary does not guarantee order because you have to loop using
+-- pairs instead of ipairs.
+-- zone_dict = {
+-- 	["f3a9a4"] = "White",
+-- 	["873e94"] = "Red",
+-- 	["eb966b"] = "Orange",
+-- 	["14ccd8"] = "Yellow",
+-- 	["8e07ed"] = "Green",
+-- 	["49c7b4"] = "Blue",
+-- 	["7eea62"] = "Purple",
+-- 	["f9a8e0"] = "Pink",
+-- }
 betting_zone_color = {}
 text_zone = {}
-deck_button_GUID = "90319e"
 player_colors = {}
 -- -- Creating color/zone associations because i'm not using a table like a dumbass
 for i in ipairs(betting_zone_GUID) do
@@ -56,12 +67,11 @@ function onLoad()
 	-- this is a function not an event so this might not get an accurate list
 	-- if a player changes seats vs loads in the game to trigger onLoad
 	player_colors = getSeatedPlayers()
-	-- NOTE: Test this. It might be covering the case when a player loads into a
-	-- table but doesn't choose a color to run the getOrder() function
 	getOrder()
 	-- player_colors = {"White", "Red", "Orange", "Pink"}
 	dealer = nil
 	state = 0
+	deck_script = deck.getLuaScript()
 end
 
 function onPlayerChangedColor(color)
@@ -84,20 +94,27 @@ function getOrder()
 	end
 end
 -- This function gets the color zone dealer token is at
-function onObjectEnterScriptingZone(zone, obj)
-	if obj.getGUID() == dealer_token.guid then
+function onObjectEnterScriptingZone(zone, enter_obj)
+	if enter_obj.getGUID() == dealer_token.guid then
 		dealer = getColor(zone.guid)
 		return dealer
+	end
+	if enter_obj.tag == "Card" and zone.guid == discard_zone_GUID then
+		enter_obj.addTag("Discard")
 	end
 end
 -- This function resets the dealer color NOTE: ANDS are making sure it's not leaving
 -- the table_zone, or the pot zone, so just looking at betting zone leaves
--- function onObjectLeaveScriptingZone(zone, leave_object)
--- 	if leave_object.getGUID() == dealer_token.guid and zone.guid != table_zone_GUID and zone.guid != pot_GUID then
--- 		dealer = nil
--- 		return dealer
--- 	end
--- end
+function onObjectLeaveScriptingZone(zone, leave_obj)
+	-- if leave_object.getGUID() == dealer_token.guid and zone.guid != table_zone_GUID and zone.guid != pot_GUID then
+	-- 	dealer = nil
+	-- 	return dealer
+	-- end
+	if zone.guid == discard_zone_GUID then
+		leave_obj.removeTag("Discard")
+	end
+end
+
 -- This just returns the color given the zone id
 function getColor(zone_guid)
 	return betting_zone_color[zone_guid]
@@ -112,6 +129,13 @@ end
 function play(obj,color)
 	if color == dealer then
 		if state == 0 or state == 1 then
+			if state == 0 then
+				if deck.getQuantity() != 52 then
+					rgb = {r=1, g=0, b=0}
+					broadcastToAll("Deck does not have 52 cards. Found "..deck.getQuantity(), rgb)
+					return
+				end
+			end
 			-- Deal clockwise from dealer.
 			deal_params = {dealer, player_colors}
 			deck.call("deal", deal_params)
@@ -148,25 +172,53 @@ end
 -- reset state variable
 function reset_board(obj, color)
 	state = 0
-	discard_cards = discard_zone.getObjects()
+	local discard_cards = discard_zone.getObjects()
+	local table_cards = table_zone.getObjects()
+	local deck_position = deck.getPosition() -- gets current position of the deck
+	-- making position higher so it doesn't destroy the deck.
+	deck_position[2] = deck_position[2]+3
 	if color != dealer then
 		print("Dealer can only reset")
 	else
 		if discard_cards[1] != nil then
-			discard_cards[1].setPosition(deck_position)
-		end
-		local table_cards = table_zone.getObjects()
-		for i in ipairs(table_cards) do
-			if table_cards[i].tag == "Card" then
-				table_cards[i].putObject(deck)
+			if not(discard_cards[1].is_face_down) then
+				discard_cards[1].flip()
+				Wait.time(
+					function() discard_cards[1].setPosition(deck_position) end, .6)
+			else
+				discard_cards[1].setPosition(deck_position)
 			end
 		end
-		Wait.time(|| deck.shuffle(), 0.75)
-		blinds_params = {dealer, player_colors}
-		small_blind.call("move_blind",blinds_params)
-		big_blind.call("move_blind",blinds_params)
-		dealer_token.call("move_dealer",blinds_params)
-		add_text.setValue("Total Pot: $0")
+		for i in ipairs(table_cards) do
+			if table_cards[i].tag == "Card" then
+				if not table_cards[i].is_face_down then
+					table_cards[i].flip()
+					table_cards[i].putObject(deck)
+				else
+					table_cards[i].putObject(deck)
+				end
+			elseif (table_cards[i].tag == "Deck") and (not table_cards[i].hasTag("Discard")) and (table_cards[i].getQuantity() <= 16) then
+				if not(table_cards.is_face_down) then
+					table_cards[i].flip()
+					table_cards[i].setPosition(deck_position)
+					table_cards[i].setRotation(deck_rotation)
+				else
+					table_cards[i].setPosition(deck_position)
+					table_cards[i].setRotation(deck_rotation)
+				end
+			end
+		end
+	Wait.time(|| deck.shuffle(), 1)
+	blinds_params = {dealer, player_colors}
+	small_blind.call("move_blind",blinds_params)
+	big_blind.call("move_blind",blinds_params)
+	dealer_token.call("move_dealer",blinds_params)
+	add_text.setValue("Total Pot: $0")
+	Wait.time(
+		function()
+			deck.setPosition(self.getVar("deck_position"))
+		end,
+		1)
 	end
 end
 -- Goes through all the zones and takes the chips into the pot
@@ -212,37 +264,13 @@ function add_chips(zone,text)
 end
 -- Just deals the intial chips to the color called triggered by onPlayerChangedColor
 function dealInitialChips(color)
+	for i = 1, num_10 do
+    inf_bag_10.call('dealChips', {color})
+  end
   for i = 1, num_50 do
     inf_bag_50.call('dealChips', {color})
   end
   for i = 1, num_100 do
     inf_bag_100.call('dealChips', {color})
   end
-  for i = 1, num_10 do
-    inf_bag_10.call('dealChips', {color})
-  end
-end
-
--- NOTE this works in theory, global probably needs the Deck functions in global as well.
-function newDeck()
-
-	-- local deck_found = false
-	-- local object_zone = getObjectFromGUID("f3a9a4")
-	-- local objects = object_zone.getObjects()
-	-- if objects[1] != nil then
-	-- 	for i, v in ipairs(objects) do
-	-- 		if v.tag == "Deck" then
-	-- 			deck = {}
-	-- 			deck = getObjectFromGUID(v.getGUID())
-	-- 			rgb = {r=1, g=1, b=0}
-	-- 			broadcastToAll("New Deck Set", rgb)
-	-- 			deck_found = true
-	-- 			return 1
-	-- 		end
-	-- 	end
-	-- end
-	-- if deck_found == false then
-	-- 	local rgb = {r=1, g=0, b=0}
-	-- 	broadcastToAll("Place a new deck into White betting zone", rgb)
-	-- end
 end
