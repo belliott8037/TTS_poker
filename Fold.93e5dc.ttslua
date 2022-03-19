@@ -16,6 +16,6 @@ function foldHand (object, player)
   for i in pairs(cards) do
     cards[i].setRotation(Global.getVar("discard_rotation"))
     cards[i].flip()
-    Wait.time(|| cards[i].setPosition(Global.getVar("discard_position"),false,false), 0.5)
+    Wait.time(|| cards[i].setPosition(Global.getVar("discard_position")), 0.5)
   end
 end

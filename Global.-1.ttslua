@@ -1,8 +1,6 @@
 num_10 = 20
 num_50 = 20
 num_100 = 13
-deck_position = {x=-8.5,y=2,z=-2}
-deck_rotation = {x=0,y=0,z=0}
 pot_position_10s = {x=-3, y=2,z=3}
 pot_position_50s = {x=-1, y=2,z=3}
 pot_position_100s = {x=1, y=2,z=3}
@@ -16,7 +14,7 @@ inf_bag_10_GUID = "26ebe4"
 inf_bag_50_GUID = "8e496c"
 inf_bag_100_GUID = "a9e126"
 inf_bag_500_GUID = "9a0f18"
-dealer_token_GUID = "1542ed"
+dealer_token_GUID = "3cfcaa"
 discard_zone_GUID = "960f61"
 BB_GUID = "a560f3"
 SB_GUID = "a3ca23"
@@ -67,6 +65,8 @@ function onLoad()
 	-- this is a function not an event so this might not get an accurate list
 	-- if a player changes seats vs loads in the game to trigger onLoad
 	player_colors = getSeatedPlayers()
+	deck_position = deck.getPosition()
+	deck_rotation = {x=0,y=0,z=0}
 	getOrder()
 	-- player_colors = {"White", "Red", "Orange", "Pink"}
 	dealer = nil
@@ -166,15 +166,16 @@ function play(obj,color)
 		broadcastToAll("Invalid Dealer", rgb)
 	end
 end
-
 -- resets gameboard, takes cards from players hands and table, replaces them in the deck.
 -- if deck does not equal 52 cards after reset, delete old deck, create new deck in its spot
 -- reset state variable
 function reset_board(obj, color)
 	state = 0
+	local offset_time = 0
 	local discard_cards = discard_zone.getObjects()
 	local table_cards = table_zone.getObjects()
 	local deck_position = deck.getPosition() -- gets current position of the deck
+	local deck_rotation = deck.getRotation()
 	-- making position higher so it doesn't destroy the deck.
 	deck_position[2] = deck_position[2]+3
 	if color != dealer then
@@ -182,9 +183,8 @@ function reset_board(obj, color)
 	else
 		if discard_cards[1] != nil then
 			if not(discard_cards[1].is_face_down) then
+				discard_cards[1].setPosition(deck_position)
 				discard_cards[1].flip()
-				Wait.time(
-					function() discard_cards[1].setPosition(deck_position) end, .6)
 			else
 				discard_cards[1].setPosition(deck_position)
 			end
@@ -198,27 +198,26 @@ function reset_board(obj, color)
 					table_cards[i].putObject(deck)
 				end
 			elseif (table_cards[i].tag == "Deck") and (not table_cards[i].hasTag("Discard")) and (table_cards[i].getQuantity() <= 16) then
-				if not(table_cards.is_face_down) then
-					table_cards[i].flip()
-					table_cards[i].setPosition(deck_position)
-					table_cards[i].setRotation(deck_rotation)
-				else
-					table_cards[i].setPosition(deck_position)
-					table_cards[i].setRotation(deck_rotation)
+				if (not table_cards[i].is_face_down) then
+					Wait.time(||table_cards[i].setPosition(deck_position),offset_time)
+					Wait.time(|| table_cards[i].setRotation(deck_rotation),offset_time)
 				end
+				offset_time = offset_time + .25
 			end
 		end
-	Wait.time(|| deck.shuffle(), 1)
 	blinds_params = {dealer, player_colors}
 	small_blind.call("move_blind",blinds_params)
 	big_blind.call("move_blind",blinds_params)
 	dealer_token.call("move_dealer",blinds_params)
 	add_text.setValue("Total Pot: $0")
-	Wait.time(
-		function()
-			deck.setPosition(self.getVar("deck_position"))
-		end,
-		1)
+	if deck.getPosition().x != self.getVar("deck_position").x or deck.getPosition().z != self.getVar("deck_position").z then
+		Wait.time(
+			function()
+				deck.setPosition(self.getVar("deck_position"))
+			end,
+			1.5)
+	end
+	Wait.time(|| deck.shuffle(), 1.5)
 	end
 end
 -- Goes through all the zones and takes the chips into the pot
