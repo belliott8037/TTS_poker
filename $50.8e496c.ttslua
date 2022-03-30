@@ -1,43 +1,40 @@
 --[[ The onLoad function. Called when a game finishes loading. --]]
 function onLoad ()
-    local player_colors = getSeatedPlayers()
-    local num_chips = Global.getVar('num_50')
-    self.setName("$50")
-    for i, v in ipairs(player_colors) do
-        for i = 1, num_chips, 1 do
-            dealChips({v})
-        end
+  local player_colors = getSeatedPlayers()
+  local num_chips = Global.getVar('num_50')
+  self.setName("$50")
+  for i, v in ipairs(player_colors) do
+    for i = 1, num_chips, 1 do
+      dealChips({v})
     end
+  end
 end
 
 --[[ player_color is a Table because we call it from another script and we can only pass in variables from other scripts as Tables. --]]
 function dealChips(player_color)
-    if not Player[player_color[1]].seated then
-        print('Player ' .. player_color[1] .. ' is nil or not seated at the table!')
-        return
-    end
+  local player_hand = Player[player_color[1]].getPlayerHand()
+  local position = {}
+  if player_color[1] == "White" then
+    position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * -4.5 + player_hand['trigger_right_x'] * 0
+    position['y'] = player_hand['pos_y'] + -0.1
+    position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * -4.5 + player_hand['trigger_right_z'] * 0.5
+  elseif player_color[1] == "Red" then
+    position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * -4.5 + player_hand['trigger_right_x'] * 0
+    position['y'] = player_hand['pos_y'] + -0.1
+    position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * -5.5 + player_hand['trigger_right_z'] * 0.5
+  elseif player_color[1] == "Purple" then
+    position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * -4.5 + player_hand['trigger_right_x'] * 0
+    position['y'] = player_hand['pos_y'] + 0.4
+    position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * -3.5 + player_hand['trigger_right_z'] * 0.5
+  else
+    position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * -4.5 + player_hand['trigger_right_x'] * 0
+    position['y'] = player_hand['pos_y'] + 0.5
+    position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * -4 + player_hand['trigger_right_z'] * 0.5
+  end
+  local params = {}
+  params.position = {position.x, position.y, position.z}
+  params.rotation = {0, player_hand['rot_y'] + 90, 0} --[[ Poker chips are by default 90 degrees off. --]]
+  params.smooth = false
 
-    local player_hand = Player[player_color[1]].getPlayerHand()
-    local position = {}
-    if player_color[1] == "White" then
-        position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * -4.5 + player_hand['trigger_right_x'] * 0
-        position['y'] = player_hand['pos_y'] + -0.1
-        position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * -4.5 + player_hand['trigger_right_z'] * 0.5
-    elseif player_color[1] == "Red" then
-        position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * -4.5 + player_hand['trigger_right_x'] * 0
-        position['y'] = player_hand['pos_y'] + -0.1
-        position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * -5.5 + player_hand['trigger_right_z'] * 0.5
-    elseif player_color[1] == "Purple" then
-        position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * -4.5 + player_hand['trigger_right_x'] * 0
-        position['y'] = player_hand['pos_y'] + 0.4
-        position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * -3.5 + player_hand['trigger_right_z'] * 0.5
-    else
-        position['x'] = player_hand['pos_x'] + player_hand['trigger_forward_x'] * -4.5 + player_hand['trigger_right_x'] * 0
-        position['y'] = player_hand['pos_y'] + 0.5
-        position['z'] = player_hand['pos_z'] + player_hand['trigger_forward_z'] * -4 + player_hand['trigger_right_z'] * 0.5
-    end
-    local params = {}
-    params.position = {position.x, position.y, position.z}
-    params.rotation = {0, player_hand['rot_y'] + 90, 0} --[[ Poker chips are by default 90 degrees off. --]]
-    self.takeObject(params)
+  self.takeObject(params)
 end

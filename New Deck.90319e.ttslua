@@ -1,35 +1,28 @@
 function onLoad()
-    button = {}
-    button.position = {0, 0.1, 0}
-    button.rotation = {0, 0, 0}
-    button.label = 'New\nDeck'
-    button.click_function = 'newDeck'
-    button.function_owner = self
-    button.font_size = 200
-    button.width = 500
-    button.height = 500
-    self.setName("New Deck")
-    self.createButton(button)
+  button = {}
+  button.position = {0, 0.1, 0}
+  button.rotation = {0, 0, 0}
+  button.label = 'New\nDeck'
+  button.click_function = 'newDeck'
+  button.function_owner = self
+  button.font_size = 200
+  button.width = 500
+  button.height = 500
+  self.setName("New Deck")
+  self.createButton(button)
 end
-
+-- This function sets a new deck if one gets destroyed by a griefing player or
+-- by accident by drawing all the cards in the deck making the first deck guid
+-- unfindable. This is doable by getting the script of the deck at the onLoad
+-- and setting the script to the new deck spawned from this function
 function newDeck()
-    -- get objects from white zone
-    local deck_found = false
-    local object_zone = getObjectFromGUID("f3a9a4")
-    local objects = object_zone.getObjects()
-    if objects[1] != nil then
-        for i in ipairs(objects) do
-            if objects[i].tag == "Deck" then
-                Global.setVar("deck", getObjectFromGUID(objects[i].guid))
-                rgb = {r=1, g=1, b=0}
-                broadcastToAll("New Deck Set", rgb)
-                deck_found = true
-                break
-            end
-        end
-    end
-    if deck_found == false then
-        local rgb = {r=1, g=0, b=0}
-        broadcastToAll("Place a new deck into White betting zone", rgb)
-    end
+  local deck_params = {
+    type = "Deck",
+    position = Global.getTable("deck_position")
+  }
+  deck = spawnObject(deck_params)
+  deck.setLuaScript(Global.getVar("deck_script"))
+  Global.setVar("deck",deck)
+  deck.flip()
+  return deck
 end
