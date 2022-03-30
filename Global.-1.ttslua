@@ -16,8 +16,8 @@ inf_bag_100_GUID = "a9e126"
 inf_bag_500_GUID = "9a0f18"
 dealer_token_GUID = "3cfcaa"
 discard_zone_GUID = "960f61"
-BB_GUID = "a560f3"
-SB_GUID = "a3ca23"
+BB_GUID = "4d7ceb"
+SB_GUID = "323574"
 deal_GUID = "5e50dc"
 reset_GUID = "a446b7"
 collect_bets_GUID = "2f1c02"
@@ -26,6 +26,29 @@ table_zone_GUID = "0e25c7"
 deck_button_GUID = "90319e"
 betting_zone_GUID = {"f3a9a4", "873e94", "eb966b", "14ccd8", "8e07ed", "49c7b4", "7eea62", "f9a8e0"}
 color_order = {"White","Red","Orange","Yellow","Green","Blue","Purple","Pink"}
+
+-- [bank_zone_guid] = "text_guid"
+bank_zone_dict = {
+	["53b30a"] = "70817b", -- pot_guid/total_pot_text
+	["9d8594"] = "2df153", -- White's bank zone/text
+	["731f0f"] = "118806", -- Red's bank zone/text
+	["12f697"] = "4597c3", -- Orange's bank zone/text
+	["41340e"] = "a7a55b", -- Yellow's bank zone/text
+	["f56de5"] = "648a4e", -- Green's bank zone/text
+	["447520"] = "330b7d", -- Blue's bank zone/text
+	["344279"] = "4a72d4", -- Purple's bank zone/text
+	["6b38e0"] = "44a32a"  -- Pink's bank zone/text
+}
+rgb_table = {
+	["White"] = {r=255/255, g=255/255, b=255/255},
+	["Red"] = {r=219/255, g=26/255, b=24/255},
+	["Orange"] = {r=244/255, g=100/255, b=29/255},
+	["Yellow"] = {r=231/255, g=229/255, b=44/255},
+	["Green"] = {r=49/255, g=179/255, b=43/255},
+	["Blue"] = {r=31/255, g=136/255, b=255/255},
+	["Purple"] = {r=160/255, g=32/255, b=240/255},
+	["Pink"] = {r=245/255, g=112/255, b=206/255}
+}
 -- using a dictionary does not guarantee order because you have to loop using
 -- pairs instead of ipairs.
 -- zone_dict = {
@@ -41,7 +64,7 @@ color_order = {"White","Red","Orange","Yellow","Green","Blue","Purple","Pink"}
 betting_zone_color = {}
 text_zone = {}
 player_colors = {}
--- -- Creating color/zone associations because i'm not using a table like a dumbass
+-- color pair combinations
 for i in ipairs(betting_zone_GUID) do
 	betting_zone_color[betting_zone_GUID[i]] = color_order[i]
 end
@@ -59,7 +82,6 @@ function onLoad()
 	reset = getObjectFromGUID(reset_GUID)
 	collect = getObjectFromGUID(collect_bets_GUID)
 	add_text = getObjectFromGUID(total_bets_text_GUID)
-	pot_zone = getObjectFromGUID(pot_GUID)
 	table_zone = getObjectFromGUID(table_zone_GUID)
 	discard_zone = getObjectFromGUID(discard_zone_GUID)
 	-- this is a function not an event so this might not get an accurate list
@@ -68,7 +90,7 @@ function onLoad()
 	deck_position = deck.getPosition()
 	deck_rotation = {x=0,y=0,z=0}
 	getOrder()
-	-- player_colors = {"White", "Red", "Orange", "Pink"}
+	--player_colors = {"White", "Red", "Orange", "Pink"}
 	dealer = nil
 	state = 0
 	deck_script = deck.getLuaScript()
@@ -94,25 +116,37 @@ function getOrder()
 	end
 end
 -- This function gets the color zone dealer token is at
-function onObjectEnterScriptingZone(zone, enter_obj)
+function onObjectEnterZone(zone, enter_obj)
 	if enter_obj.getGUID() == dealer_token.guid then
 		dealer = getColor(zone.guid)
 		return dealer
 	end
-	if enter_obj.tag == "Card" and zone.guid == discard_zone_GUID then
+	-- tags discard_zone cards to help with gathering cards on reset function
+	if zone.guid == discard_zone_GUID and enter_obj.tag == "Card" then
 		enter_obj.addTag("Discard")
 	end
+	-- bank zone text updating
+	if enter_obj.tag == "Chip" then
+		-- pcall is protected call in Lua, which is basically a try/catch block
+		-- we use it here because the given zone not guaranteed to be a zone in the bank_zone_dict
+		pcall(add_chips, zone.guid)
+	end
 end
--- This function resets the dealer color NOTE: ANDS are making sure it's not leaving
--- the table_zone, or the pot zone, so just looking at betting zone leaves
-function onObjectLeaveScriptingZone(zone, leave_obj)
-	-- if leave_object.getGUID() == dealer_token.guid and zone.guid != table_zone_GUID and zone.guid != pot_GUID then
-	-- 	dealer = nil
-	-- 	return dealer
-	-- end
+
+function onObjectLeaveZone(zone, leave_obj)
 	if zone.guid == discard_zone_GUID then
 		leave_obj.removeTag("Discard")
 	end
+	if leave_obj.tag == "Chip" then
+		-- pcall is protected call in Lua, which is basically a try/catch block
+		-- we use it here because the given zone not guaranteed to be a zone in the bank_zone_dict
+		pcall(add_chips, zone.guid)
+	end
+end
+
+function onPlayerPing(player, position)
+	local rgb = rgb_table[player.color]
+	broadcastToAll(player.steam_name.." checks", rgb)
 end
 
 -- This just returns the color given the zone id
@@ -125,7 +159,6 @@ end
 -- 3 deal the turn
 -- 4 deal the river
 -- 5 = collect chips and display "SHOWDOWN" text
--- NOTE: nil is called when dealer chip is displaced by move dealer function
 function play(obj,color)
 	if color == dealer then
 		if state == 0 or state == 1 then
@@ -192,17 +225,14 @@ function reset_board(obj, color)
 		for i in ipairs(table_cards) do
 			if table_cards[i].tag == "Card" then
 				if not table_cards[i].is_face_down then
-					table_cards[i].flip()
 					table_cards[i].putObject(deck)
 				else
 					table_cards[i].putObject(deck)
 				end
 			elseif (table_cards[i].tag == "Deck") and (not table_cards[i].hasTag("Discard")) and (table_cards[i].getQuantity() <= 16) then
-				if (not table_cards[i].is_face_down) then
-					Wait.time(||table_cards[i].setPosition(deck_position),offset_time)
-					Wait.time(|| table_cards[i].setRotation(deck_rotation),offset_time)
-				end
-				offset_time = offset_time + .25
+				Wait.time(||table_cards[i].setPosition(deck_position),offset_time)
+				Wait.time(|| table_cards[i].setRotation(deck_rotation),offset_time)
+				offset_time = offset_time + .15
 			end
 		end
 	blinds_params = {dealer, player_colors}
@@ -223,6 +253,24 @@ end
 -- Goes through all the zones and takes the chips into the pot
 function collect_chips()
 	local zone_objects = {}
+	local pot_zone = getObjectFromGUID(pot_GUID)
+	local pot_objects = pot_zone.getObjects()
+	-- clean zone up before gathering bets math.floor truncates the float into an int
+	for i in pairs(pot_objects) do
+		if pot_objects[i].getValue() == 10 and math.floor(pot_objects[i].getPosition().x) != self.getVar("pot_position_10s").x then
+			pot_objects[i].setPosition(pot_position_10s)
+			pot_objects[i].setRotation(pot_rotation)
+		elseif pot_objects[i].getValue() == 50 and math.floor(pot_objects[i].getPosition().x) != self.getVar("pot_position_50s").x then
+			pot_objects[i].setPosition(pot_position_50s)
+			pot_objects[i].setRotation(pot_rotation)
+		elseif pot_objects[i].getValue() == 100 and math.floor(pot_objects[i].getPosition().x) != self.getVar("pot_position_100s").x then
+			pot_objects[i].setPosition(pot_position_100s)
+			pot_objects[i].setRotation(pot_rotation)
+		elseif pot_objects[i].getValue() == 500 and math.floor(pot_objects[i].getPosition().x) != self.getVar("pot_position_500s").x then
+			pot_objects[i].setPosition(pot_position_500s)
+			pot_objects[i].setRotation(pot_rotation)
+		end
+	end
 	for i in pairs(betting_zone_GUID) do
 		local object_zone = getObjectFromGUID(betting_zone_GUID[i])
 		zone_objects[i] = object_zone.getObjects()
@@ -243,12 +291,13 @@ function collect_chips()
 		end
 	end
 
-	Wait.time(function() add_chips(pot_zone,add_text) end, 0.03)
+	Wait.time(function() add_chips(pot_GUID) end, 0.03)
 end
 -- Takes the chips in the pot zone and does some math to figure out how much
 -- it's worth, updates text to accurate number
-function add_chips(zone,text)
-	local total_objects = zone.getObjects()
+function add_chips(zone)
+	local zone_obj = getObjectFromGUID(zone)
+	local total_objects = zone_obj.getObjects()
 	local total = 0
 	for i in ipairs(total_objects) do
 		if total_objects[i].tag == "Chip" then
@@ -259,7 +308,12 @@ function add_chips(zone,text)
 			end
 		end
 	end
-	text.setValue("Total Pot: $"..total)
+	local text = getObjectFromGUID(bank_zone_dict[zone])
+	if zone == pot_GUID then
+		text.setValue("Total Pot: $"..total)
+	else
+		text.setValue("Bank: $"..total)
+	end
 end
 -- Just deals the intial chips to the color called triggered by onPlayerChangedColor
 function dealInitialChips(color)
