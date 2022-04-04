@@ -13,9 +13,42 @@ end
 
 function foldHand (object, player)
   local cards = Player[player].getHandObjects()
-  for i in pairs(cards) do
-    cards[i].setRotation(Global.getVar("discard_rotation"))
-    cards[i].flip()
-    Wait.time(|| cards[i].setPosition(Global.getVar("discard_position")), 0.5)
+  local color_table = Global.getTable("rgb_table")
+  local rgb = color_table[player]
+  local hand = Player[player].getPlayerHand()
+  if player == "White" then
+    position_x = hand["pos_x"] + 5
+    position_y = hand["pos_y"]
+    position_z = hand["pos_z"] + 4
+    rotation = {x=180,y=35,z=0}
+  elseif player == "Red" then
+    position_x = hand["pos_x"] + 7
+    position_y = hand["pos_y"]
+    position_z = hand["pos_z"] - 3
+    rotation = {x=180,y=105,z=0}
+  elseif player == "Purple" then
+    position_x = hand["pos_x"] - 8
+    position_y = hand["pos_y"]
+    position_z = hand["pos_z"] - 3
+    rotation = {x=180,y=64,z=0}
+  elseif player == "Pink" then
+    position_x = hand["pos_x"] - 5
+    position_y = hand["pos_y"]
+    position_z = hand["pos_z"] + 7
+    rotation = {x=180,y=135,z=0}
+  else
+    position_x = hand["pos_x"]
+    position_y = hand["pos_y"]
+    position_z = hand["pos_z"] - 8
+    rotation = {x=180,y=0,z=0}
+  end
+  local position_table = {position_x, position_y, position_z}
+  if cards[1] != nil then
+    for i in pairs(cards) do
+      cards[i].setRotation(Global.getVar("discard_rotation"))
+      cards[i].flip()
+      Wait.time(function() cards[i].setPosition(position_table) cards[i].setRotation(rotation) end, 0.25)
+    end
+    broadcastToAll(Player[player].steam_name.." folds", rgb)
   end
 end

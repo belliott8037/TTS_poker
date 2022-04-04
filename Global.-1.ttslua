@@ -39,6 +39,16 @@ bank_zone_dict = {
 	["344279"] = "4a72d4", -- Purple's bank zone/text
 	["6b38e0"] = "44a32a"  -- Pink's bank zone/text
 }
+bet_zone_dict = {
+	["f3a9a4"] = "0fa354",  -- White's bid_zone/text
+	["873e94"] = "3feb15",  -- Red's bid_zone/text
+	["eb966b"] = "176389",  -- Orange's bid_zone/text
+	["14ccd8"] = "ca72c9",  -- Yellow's bid_zone/text
+	["8e07ed"] = "9b6a7b",  -- Green's bid_zone/text
+	["49c7b4"] = "1af19d",  -- Blue's bid_zone/text
+	["7eea62"] = "ea16f3",  -- Purple's bid_zone/text
+	["f9a8e0"] = "900c00"   -- Pink's bid_zone/text
+}
 rgb_table = {
 	["White"] = {r=255/255, g=255/255, b=255/255},
 	["Red"] = {r=219/255, g=26/255, b=24/255},
@@ -299,6 +309,7 @@ function add_chips(zone)
 	local zone_obj = getObjectFromGUID(zone)
 	local total_objects = zone_obj.getObjects()
 	local total = 0
+	local found = false
 	for i in ipairs(total_objects) do
 		if total_objects[i].tag == "Chip" then
 			if total_objects[i].getQuantity() != -1 then
@@ -308,11 +319,20 @@ function add_chips(zone)
 			end
 		end
 	end
-	local text = getObjectFromGUID(bank_zone_dict[zone])
 	if zone == pot_GUID then
 		text.setValue("Total Pot: $"..total)
 	else
-		text.setValue("Bank: $"..total)
+		for i in ipairs(betting_zone_GUID) do
+			if betting_zone_GUID[i] == zone then
+				local text = getObjectFromGUID(bet_zone_dict[zone])
+				text.setValue("Bet: $"..total)
+				found = true
+			end
+		end
+		if not found then
+			local text = getObjectFromGUID(bank_zone_dict[zone])
+			text.setValue("Bank: $"..total)
+		end
 	end
 end
 -- Just deals the intial chips to the color called triggered by onPlayerChangedColor
