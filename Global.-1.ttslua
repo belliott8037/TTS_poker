@@ -320,6 +320,7 @@ function add_chips(zone)
 		end
 	end
 	if zone == pot_GUID then
+		local text = getObjectFromGUID(pot_GUID)
 		text.setValue("Total Pot: $"..total)
 	else
 		for i in ipairs(betting_zone_GUID) do
