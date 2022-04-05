@@ -21,7 +21,7 @@ SB_GUID = "323574"
 deal_GUID = "5e50dc"
 reset_GUID = "a446b7"
 collect_bets_GUID = "2f1c02"
-total_bets_text_GUID = "70817b"
+pot_text_GUID = "70817b"
 table_zone_GUID = "0e25c7"
 deck_button_GUID = "90319e"
 betting_zone_GUID = {"f3a9a4", "873e94", "eb966b", "14ccd8", "8e07ed", "49c7b4", "7eea62", "f9a8e0"}
@@ -29,7 +29,6 @@ color_order = {"White","Red","Orange","Yellow","Green","Blue","Purple","Pink"}
 
 -- [bank_zone_guid] = "text_guid"
 bank_zone_dict = {
-	["53b30a"] = "70817b", -- pot_guid/total_pot_text
 	["9d8594"] = "2df153", -- White's bank zone/text
 	["731f0f"] = "118806", -- Red's bank zone/text
 	["12f697"] = "4597c3", -- Orange's bank zone/text
@@ -91,7 +90,7 @@ function onLoad()
 	deal = getObjectFromGUID(deal_GUID)
 	reset = getObjectFromGUID(reset_GUID)
 	collect = getObjectFromGUID(collect_bets_GUID)
-	add_text = getObjectFromGUID(total_bets_text_GUID)
+	pot_text = getObjectFromGUID(pot_text_GUID)
 	table_zone = getObjectFromGUID(table_zone_GUID)
 	discard_zone = getObjectFromGUID(discard_zone_GUID)
 	-- this is a function not an event so this might not get an accurate list
@@ -104,6 +103,7 @@ function onLoad()
 	dealer = nil
 	state = 0
 	deck_script = deck.getLuaScript()
+	dealer_token.addTag("Dealer")
 end
 
 function onPlayerChangedColor(color)
@@ -129,7 +129,6 @@ end
 function onObjectEnterZone(zone, enter_obj)
 	if enter_obj.getGUID() == dealer_token.guid then
 		dealer = getColor(zone.guid)
-		return dealer
 	end
 	-- tags discard_zone cards to help with gathering cards on reset function
 	if zone.guid == discard_zone_GUID and enter_obj.tag == "Card" then
@@ -249,7 +248,7 @@ function reset_board(obj, color)
 	small_blind.call("move_blind",blinds_params)
 	big_blind.call("move_blind",blinds_params)
 	dealer_token.call("move_dealer",blinds_params)
-	add_text.setValue("Total Pot: $0")
+	pot_text.setValue("Total Pot: $0")
 	if deck.getPosition().x != self.getVar("deck_position").x or deck.getPosition().z != self.getVar("deck_position").z then
 		Wait.time(
 			function()
@@ -311,7 +310,7 @@ function add_chips(zone)
 	local total = 0
 	local found = false
 	for i in ipairs(total_objects) do
-		if total_objects[i].tag == "Chip" then
+		if total_objects[i].tag == "Chip" and (not total_objects[i].hasTag("Dealer")) then
 			if total_objects[i].getQuantity() != -1 then
 				total = total + total_objects[i].getQuantity() * total_objects[i].getValue()
 			else
@@ -319,19 +318,19 @@ function add_chips(zone)
 			end
 		end
 	end
+
 	if zone == pot_GUID then
-		local text = getObjectFromGUID(pot_GUID)
-		text.setValue("Total Pot: $"..total)
+		pot_text.setValue("Total Pot: $"..total)
 	else
 		for i in ipairs(betting_zone_GUID) do
 			if betting_zone_GUID[i] == zone then
-				local text = getObjectFromGUID(bet_zone_dict[zone])
+				text = getObjectFromGUID(bet_zone_dict[zone])
 				text.setValue("Bet: $"..total)
 				found = true
 			end
 		end
 		if not found then
-			local text = getObjectFromGUID(bank_zone_dict[zone])
+			text = getObjectFromGUID(bank_zone_dict[zone])
 			text.setValue("Bank: $"..total)
 		end
 	end
