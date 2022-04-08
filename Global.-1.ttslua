@@ -21,15 +21,14 @@ SB_GUID = "323574"
 deal_GUID = "5e50dc"
 reset_GUID = "a446b7"
 collect_bets_GUID = "2f1c02"
-total_bets_text_GUID = "70817b"
+pot_text_GUID = "70817b"
 table_zone_GUID = "0e25c7"
 deck_button_GUID = "90319e"
 betting_zone_GUID = {"f3a9a4", "873e94", "eb966b", "14ccd8", "8e07ed", "49c7b4", "7eea62", "f9a8e0"}
 color_order = {"White","Red","Orange","Yellow","Green","Blue","Purple","Pink"}
-
+collect_button_GUID = "981a26"
 -- [bank_zone_guid] = "text_guid"
 bank_zone_dict = {
-	["53b30a"] = "70817b", -- pot_guid/total_pot_text
 	["9d8594"] = "2df153", -- White's bank zone/text
 	["731f0f"] = "118806", -- Red's bank zone/text
 	["12f697"] = "4597c3", -- Orange's bank zone/text
@@ -38,6 +37,16 @@ bank_zone_dict = {
 	["447520"] = "330b7d", -- Blue's bank zone/text
 	["344279"] = "4a72d4", -- Purple's bank zone/text
 	["6b38e0"] = "44a32a"  -- Pink's bank zone/text
+}
+bet_zone_dict = {
+	["f3a9a4"] = "0fa354",  -- White's bid_zone/text
+	["873e94"] = "3feb15",  -- Red's bid_zone/text
+	["eb966b"] = "176389",  -- Orange's bid_zone/text
+	["14ccd8"] = "ca72c9",  -- Yellow's bid_zone/text
+	["8e07ed"] = "9b6a7b",  -- Green's bid_zone/text
+	["49c7b4"] = "1af19d",  -- Blue's bid_zone/text
+	["7eea62"] = "ea16f3",  -- Purple's bid_zone/text
+	["f9a8e0"] = "900c00"   -- Pink's bid_zone/text
 }
 rgb_table = {
 	["White"] = {r=255/255, g=255/255, b=255/255},
@@ -51,16 +60,16 @@ rgb_table = {
 }
 -- using a dictionary does not guarantee order because you have to loop using
 -- pairs instead of ipairs.
--- zone_dict = {
--- 	["f3a9a4"] = "White",
--- 	["873e94"] = "Red",
--- 	["eb966b"] = "Orange",
--- 	["14ccd8"] = "Yellow",
--- 	["8e07ed"] = "Green",
--- 	["49c7b4"] = "Blue",
--- 	["7eea62"] = "Purple",
--- 	["f9a8e0"] = "Pink",
--- }
+zone_dict = {
+	["White"] = "f3a9a4",
+	["Red"] = "873e94",
+	["Orange"] = "eb966b",
+	["Yellow"] = "14ccd8",
+	["Green"] = "8e07ed",
+	["Blue"] = "49c7b4",
+	["Purple"] = "7eea62",
+	["Pink"] = "f9a8e0"
+}
 betting_zone_color = {}
 text_zone = {}
 player_colors = {}
@@ -81,9 +90,10 @@ function onLoad()
 	deal = getObjectFromGUID(deal_GUID)
 	reset = getObjectFromGUID(reset_GUID)
 	collect = getObjectFromGUID(collect_bets_GUID)
-	add_text = getObjectFromGUID(total_bets_text_GUID)
+	pot_text = getObjectFromGUID(pot_text_GUID)
 	table_zone = getObjectFromGUID(table_zone_GUID)
 	discard_zone = getObjectFromGUID(discard_zone_GUID)
+	-- collect_button = getObjectFromGUID(collect_button_GUID)
 	-- this is a function not an event so this might not get an accurate list
 	-- if a player changes seats vs loads in the game to trigger onLoad
 	player_colors = getSeatedPlayers()
@@ -94,10 +104,10 @@ function onLoad()
 	dealer = nil
 	state = 0
 	deck_script = deck.getLuaScript()
+	dealer_token.addTag("Dealer")
 end
 
 function onPlayerChangedColor(color)
--- Player defaults to grey when choosing a color then when sitting at a seat it updates again
     if color != 'Grey' and color != 'Black' then
       dealInitialChips(color)
 		end
@@ -119,7 +129,6 @@ end
 function onObjectEnterZone(zone, enter_obj)
 	if enter_obj.getGUID() == dealer_token.guid then
 		dealer = getColor(zone.guid)
-		return dealer
 	end
 	-- tags discard_zone cards to help with gathering cards on reset function
 	if zone.guid == discard_zone_GUID and enter_obj.tag == "Card" then
@@ -239,7 +248,7 @@ function reset_board(obj, color)
 	small_blind.call("move_blind",blinds_params)
 	big_blind.call("move_blind",blinds_params)
 	dealer_token.call("move_dealer",blinds_params)
-	add_text.setValue("Total Pot: $0")
+	pot_text.setValue("Total Pot: $0")
 	if deck.getPosition().x != self.getVar("deck_position").x or deck.getPosition().z != self.getVar("deck_position").z then
 		Wait.time(
 			function()
@@ -250,7 +259,7 @@ function reset_board(obj, color)
 	Wait.time(|| deck.shuffle(), 1.5)
 	end
 end
--- Goes through all the zones and takes the chips into the pot
+-- This cleans up the pot before calling the function to gather all chips in the betting zones
 function collect_chips()
 	local zone_objects = {}
 	local pot_zone = getObjectFromGUID(pot_GUID)
@@ -271,27 +280,47 @@ function collect_chips()
 			pot_objects[i].setRotation(pot_rotation)
 		end
 	end
-	for i in pairs(betting_zone_GUID) do
-		local object_zone = getObjectFromGUID(betting_zone_GUID[i])
-		zone_objects[i] = object_zone.getObjects()
-		for j in ipairs(zone_objects[i]) do
-			if zone_objects[i][j].getValue() == 10 then
-				zone_objects[i][j].setPosition(pot_position_10s)
-				zone_objects[i][j].setRotation(pot_rotation)
-			elseif zone_objects[i][j].getValue() == 50 then
-				zone_objects[i][j].setPosition(pot_position_50s)
-				zone_objects[i][j].setRotation(pot_rotation)
-			elseif zone_objects[i][j].getValue() == 100 then
-				zone_objects[i][j].setPosition(pot_position_100s)
-				zone_objects[i][j].setRotation(pot_rotation)
-			elseif zone_objects[i][j].getValue() == 500 then
-				zone_objects[i][j].setPosition(pot_position_500s)
-				zone_objects[i][j].setRotation(pot_rotation)
+	startLuaCoroutine(Global, "stack_chips")
+	Wait.time(function() add_chips(pot_GUID) end, 0.03)
+end
+-- This function is a coroutine to stack the chips so they don't explode everywhere
+-- The coroutine.yield is useful here to smoothly drop the chips to its location
+function stack_chips()
+	local starting_height = .5
+	local pot_position_10s = Global.getTable("pot_position_10s")
+	local pot_position_50s = Global.getTable("pot_position_50s")
+	local pot_position_100s = Global.getTable("pot_position_100s")
+	local pot_position_500s = Global.getTable("pot_position_500s")
+
+	for i in ipairs(player_colors) do
+		local object_zone = getObjectFromGUID(zone_dict[player_colors[i]])
+		local zone_objects = object_zone.getObjects()
+		local count = 0
+		for j in ipairs(zone_objects) do
+			if zone_objects[j].getValue() == 10 then
+				zone_objects[j].setPosition(pot_position_10s)
+				zone_objects[j].setRotation(pot_rotation)
+				pot_position_10s.y = pot_position_10s.y + 2.5
+			elseif zone_objects[j].getValue() == 50 then
+				zone_objects[j].setPosition(pot_position_50s)
+				zone_objects[j].setRotation(pot_rotation)
+				pot_position_50s.y = pot_position_50s.y + 2.5
+			elseif zone_objects[j].getValue() == 100 then
+				zone_objects[j].setPosition(pot_position_100s)
+				zone_objects[j].setRotation(pot_rotation)
+				pot_position_100s.y = pot_position_100s.y + 2.5
+			elseif zone_objects[j].getValue() == 500 then
+				zone_objects[j].setPosition(pot_position_500s)
+				zone_objects[j].setRotation(pot_rotation)
+				pot_position_500s.y = pot_position_500s.y + 2.5
+			end
+			while count < 30 do -- wait 30 frames
+				coroutine.yield(0)
+				count = count + 1
 			end
 		end
 	end
-
-	Wait.time(function() add_chips(pot_GUID) end, 0.03)
+	return 1 -- coroutines have to end in return 1
 end
 -- Takes the chips in the pot zone and does some math to figure out how much
 -- it's worth, updates text to accurate number
@@ -299,8 +328,9 @@ function add_chips(zone)
 	local zone_obj = getObjectFromGUID(zone)
 	local total_objects = zone_obj.getObjects()
 	local total = 0
+	local found = false
 	for i in ipairs(total_objects) do
-		if total_objects[i].tag == "Chip" then
+		if total_objects[i].tag == "Chip" and (not total_objects[i].hasTag("Dealer")) then
 			if total_objects[i].getQuantity() != -1 then
 				total = total + total_objects[i].getQuantity() * total_objects[i].getValue()
 			else
@@ -308,10 +338,14 @@ function add_chips(zone)
 			end
 		end
 	end
-	local text = getObjectFromGUID(bank_zone_dict[zone])
+	-- set proper text values to the total
 	if zone == pot_GUID then
-		text.setValue("Total Pot: $"..total)
+		pot_text.setValue("Total Pot: $"..total)
+	elseif bet_zone_dict[zone] != nil then
+		text = getObjectFromGUID(bet_zone_dict[zone])
+		text.setValue("Bet: $"..total)
 	else
+		text = getObjectFromGUID(bank_zone_dict[zone])
 		text.setValue("Bank: $"..total)
 	end
 end

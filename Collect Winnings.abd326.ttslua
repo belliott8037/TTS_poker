@@ -1,0 +1,177 @@
+function onload()
+  button = {}
+  button.position = {0, 0.1, 0}
+  button.rotation = {0, 15, 0}
+  button.label = 'Collect\nWinnings'
+  button.click_function = 'collect_winnings'
+  button.function_owner = self
+  button.font_size = 150
+  button.width = 600
+  button.height = 400
+  self.setName("Collect Winnings")
+  self.createButton(button)
+end
+
+function collect_winnings(object, player)
+  local pot_zone = Global.getVar("pot_GUID")
+  pot_zone = getObjectFromGUID(pot_zone)
+  local pot_stuff = pot_zone.getObjects()
+  local hand = Player[player].getPlayerHand()
+  for i in pairs(pot_stuff)do
+    if pot_stuff[i].tag == "Chip" and not pot_stuff[i].hasTag("Dealer") then
+      if player == "White" then
+        if pot_stuff[i].getValue() == 10 then
+          position_x = hand["pos_x"] + 1.5
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] + 6.5
+          rotation = {x=180,y=90,z=0}
+          local position_table_10s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_10s)
+        elseif pot_stuff[i].getValue() == 50 then
+          position_x = hand["pos_x"] + 3.5
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] + 4.75
+          rotation = {x=180,y=90,z=0}
+          local position_table_50s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_50s)
+        elseif pot_stuff[i].getValue() == 100 then
+          position_x = hand["pos_x"] + 5.5
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] + 3
+          rotation = {x=180,y=90,z=0}
+          local position_table_100s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_100s)
+        elseif pot_stuff[i].getValue() == 500 then
+          position_x = hand["pos_x"] + 1.5
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] + 2.5
+          rotation = {x=180,y=90,z=0}
+          local position_table_500s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_500s)
+        end
+      elseif player == "Red" then
+        if pot_stuff[i].getValue() == 10 then
+          position_x = hand["pos_x"] + 7
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] - .5
+          rotation = {x=180,y=90,z=0}
+          local position_table_10s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_10s)
+        elseif pot_stuff[i].getValue() == 50 then
+          position_x = hand["pos_x"] + 6.5
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] - 3
+          rotation = {x=180,y=90,z=0}
+          local position_table_50s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_50s)
+        elseif pot_stuff[i].getValue() == 100 then
+          position_x = hand["pos_x"] + 5.5
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] - 5.5
+          rotation = {x=180,y=90,z=0}
+          local position_table_100s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_100s)
+        elseif pot_stuff[i].getValue() == 500 then
+          position_x = hand["pos_x"] + 4
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] - 2.5
+          rotation = {x=180,y=90,z=0}
+          local position_table_500s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_500s)
+        end
+      elseif player == "Purple" then
+        if pot_stuff[i].getValue() == 10 then
+          position_x = hand["pos_x"] - 5
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] - 6
+          rotation = {x=180,y=90,z=0}
+          local position_table_10s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_10s)
+        elseif pot_stuff[i].getValue() == 50 then
+          position_x = hand["pos_x"] - 6
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] - 4
+          rotation = {x=180,y=90,z=0}
+          local position_table_50s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_50s)
+        elseif pot_stuff[i].getValue() == 100 then
+          position_x = hand["pos_x"] - 7
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] - 2
+          rotation = {x=180,y=90,z=0}
+          local position_table_100s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_100s)
+        elseif pot_stuff[i].getValue() == 500 then
+          position_x = hand["pos_x"] - 4
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] - 3
+          rotation = {x=180,y=90,z=0}
+          local position_table_500s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_500s)
+        end
+      elseif player == "Pink" then
+        if pot_stuff[i].getValue() == 10 then
+          position_x = hand["pos_x"] - 7.5
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] + 3
+          rotation = {x=180,y=90,z=0}
+          local position_table_10s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_10s)
+        elseif pot_stuff[i].getValue() == 50 then
+          position_x = hand["pos_x"] - 6
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] + 4.5
+          rotation = {x=180,y=90,z=0}
+          local position_table_50s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_50s)
+        elseif pot_stuff[i].getValue() == 100 then
+          position_x = hand["pos_x"] - 4.5
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] + 6
+          rotation = {x=180,y=90,z=0}
+          local position_table_100s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_100s)
+        elseif pot_stuff[i].getValue() == 500 then
+          position_x = hand["pos_x"] - 3
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] + 7
+          rotation = {x=180,y=90,z=0}
+          local position_table_500s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_500s)
+        end
+        else
+          if pot_stuff[i].getValue() == 10 then
+            position_x = hand["pos_x"] + 3.5
+            position_y = hand["pos_y"]
+            position_z = hand["pos_z"] - 7.5
+            rotation = {x=180,y=90,z=0}
+            local position_table_10s = {position_x, position_y, position_z}
+            pot_stuff[i].setPosition(position_table_10s)
+          elseif pot_stuff[i].getValue() == 50 then
+            position_x = hand["pos_x"] + 1.5
+            position_y = hand["pos_y"]
+            position_z = hand["pos_z"] - 7.5
+            rotation = {x=180,y=90,z=0}
+            local position_table_50s = {position_x, position_y, position_z}
+            pot_stuff[i].setPosition(position_table_50s)
+          elseif pot_stuff[i].getValue() == 100 then
+            position_x = hand["pos_x"] - .5
+            position_y = hand["pos_y"]
+            position_z = hand["pos_z"] - 7.5
+            rotation = {x=180,y=90,z=0}
+            local position_table_100s = {position_x, position_y, position_z}
+            pot_stuff[i].setPosition(position_table_100s)
+          elseif pot_stuff[i].getValue() == 500 then
+            position_x = hand["pos_x"] - 3
+            position_y = hand["pos_y"]
+            position_z = hand["pos_z"] - 7.5
+            rotation = {x=180,y=90,z=0}
+            local position_table_500s = {position_x, position_y, position_z}
+            pot_stuff[i].setPosition(position_table_500s)
+          end
+        end
+      local position_table = {position_x, position_y, position_z}
+      pot_stuff[i].setPosition(position_table)
+    end
+  end
+end
