@@ -60,16 +60,16 @@ rgb_table = {
 }
 -- using a dictionary does not guarantee order because you have to loop using
 -- pairs instead of ipairs.
--- zone_dict = {
--- 	["f3a9a4"] = "White",
--- 	["873e94"] = "Red",
--- 	["eb966b"] = "Orange",
--- 	["14ccd8"] = "Yellow",
--- 	["8e07ed"] = "Green",
--- 	["49c7b4"] = "Blue",
--- 	["7eea62"] = "Purple",
--- 	["f9a8e0"] = "Pink",
--- }
+zone_dict = {
+	"White" = ["f3a9a4"],
+	"Red"   = ["873e94"],
+	"Orange"= ["eb966b"],
+	"Yellow"= ["14ccd8"],
+	"Green" = ["8e07ed"],
+	"Blue"  = ["49c7b4"],
+	"Purple"= ["7eea62"],
+	"Pink"  = ["f9a8e0"]
+}
 betting_zone_color = {}
 text_zone = {}
 player_colors = {}
@@ -107,7 +107,6 @@ function onLoad()
 end
 
 function onPlayerChangedColor(color)
--- Player defaults to grey when choosing a color then when sitting at a seat it updates again
     if color != 'Grey' and color != 'Black' then
       dealInitialChips(color)
 		end
@@ -280,27 +279,47 @@ function collect_chips()
 			pot_objects[i].setRotation(pot_rotation)
 		end
 	end
-	for i in pairs(betting_zone_GUID) do
+	startLuaCoroutine(Global, "stack_chips")
+	Wait.time(function() add_chips(pot_GUID) end, 0.03)
+end
+-- This function is a coroutine to stack the chips so they don't explode everywhere
+-- The coroutine.yield is useful here to smoothly drop the chips to its location
+function stack_chips()
+	local starting_height = .5
+	local pot_position_10s = Global.getTable("pot_position_10s")
+	local pot_position_50s = Global.getTable("pot_position_50s")
+	local pot_position_100s = Global.getTable("pot_position_100s")
+	local pot_position_500s = Global.getTable("pot_position_500s")
+
+	for i in ipairs(betting_zone_GUID) do
 		local object_zone = getObjectFromGUID(betting_zone_GUID[i])
-		zone_objects[i] = object_zone.getObjects()
-		for j in ipairs(zone_objects[i]) do
-			if zone_objects[i][j].getValue() == 10 then
-				zone_objects[i][j].setPosition(pot_position_10s)
-				zone_objects[i][j].setRotation(pot_rotation)
-			elseif zone_objects[i][j].getValue() == 50 then
-				zone_objects[i][j].setPosition(pot_position_50s)
-				zone_objects[i][j].setRotation(pot_rotation)
-			elseif zone_objects[i][j].getValue() == 100 then
-				zone_objects[i][j].setPosition(pot_position_100s)
-				zone_objects[i][j].setRotation(pot_rotation)
-			elseif zone_objects[i][j].getValue() == 500 then
-				zone_objects[i][j].setPosition(pot_position_500s)
-				zone_objects[i][j].setRotation(pot_rotation)
+		local zone_objects = object_zone.getObjects()
+		local count = 0
+		for j in ipairs(zone_objects) do
+			if zone_objects[j].getValue() == 10 then
+				zone_objects[j].setPosition(pot_position_10s)
+				zone_objects[j].setRotation(pot_rotation)
+				pot_position_10s.y = pot_position_10s.y + 2.5
+			elseif zone_objects[j].getValue() == 50 then
+				zone_objects[j].setPosition(pot_position_50s)
+				zone_objects[j].setRotation(pot_rotation)
+				pot_position_50s.y = pot_position_50s.y + 2.5
+			elseif zone_objects[j].getValue() == 100 then
+				zone_objects[j].setPosition(pot_position_100s)
+				zone_objects[j].setRotation(pot_rotation)
+				pot_position_100s.y = pot_position_100s.y + 2.5
+			elseif zone_objects[j].getValue() == 500 then
+				zone_objects[j].setPosition(pot_position_500s)
+				zone_objects[j].setRotation(pot_rotation)
+				pot_position_500s.y = pot_position_500s.y + 2.5
+			end
+			while count < 30 do
+				coroutine.yield(0)
+				count = count + 1
 			end
 		end
 	end
-
-	Wait.time(function() add_chips(pot_GUID) end, 0.03)
+	return 1 -- coroutines have to end in return 1
 end
 -- Takes the chips in the pot zone and does some math to figure out how much
 -- it's worth, updates text to accurate number
@@ -318,21 +337,15 @@ function add_chips(zone)
 			end
 		end
 	end
-
+	-- set proper text values to the total
 	if zone == pot_GUID then
 		pot_text.setValue("Total Pot: $"..total)
+	elseif bet_zone_dict[zone] != nil then
+		text = getObjectFromGUID(bet_zone_dict[zone])
+		text.setValue("Bet: $"..total)
 	else
-		for i in ipairs(betting_zone_GUID) do
-			if betting_zone_GUID[i] == zone then
-				text = getObjectFromGUID(bet_zone_dict[zone])
-				text.setValue("Bet: $"..total)
-				found = true
-			end
-		end
-		if not found then
-			text = getObjectFromGUID(bank_zone_dict[zone])
-			text.setValue("Bank: $"..total)
-		end
+		text = getObjectFromGUID(bank_zone_dict[zone])
+		text.setValue("Bank: $"..total)
 	end
 end
 -- Just deals the intial chips to the color called triggered by onPlayerChangedColor
