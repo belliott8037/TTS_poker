@@ -26,7 +26,7 @@ table_zone_GUID = "0e25c7"
 deck_button_GUID = "90319e"
 betting_zone_GUID = {"f3a9a4", "873e94", "eb966b", "14ccd8", "8e07ed", "49c7b4", "7eea62", "f9a8e0"}
 color_order = {"White","Red","Orange","Yellow","Green","Blue","Purple","Pink"}
-
+collect_button_GUID = "981a26"
 -- [bank_zone_guid] = "text_guid"
 bank_zone_dict = {
 	["9d8594"] = "2df153", -- White's bank zone/text
@@ -61,14 +61,14 @@ rgb_table = {
 -- using a dictionary does not guarantee order because you have to loop using
 -- pairs instead of ipairs.
 zone_dict = {
-	"White" = ["f3a9a4"],
-	"Red"   = ["873e94"],
-	"Orange"= ["eb966b"],
-	"Yellow"= ["14ccd8"],
-	"Green" = ["8e07ed"],
-	"Blue"  = ["49c7b4"],
-	"Purple"= ["7eea62"],
-	"Pink"  = ["f9a8e0"]
+	["White"] = "f3a9a4",
+	["Red"] = "873e94",
+	["Orange"] = "eb966b",
+	["Yellow"] = "14ccd8",
+	["Green"] = "8e07ed",
+	["Blue"] = "49c7b4",
+	["Purple"] = "7eea62",
+	["Pink"] = "f9a8e0"
 }
 betting_zone_color = {}
 text_zone = {}
@@ -93,6 +93,7 @@ function onLoad()
 	pot_text = getObjectFromGUID(pot_text_GUID)
 	table_zone = getObjectFromGUID(table_zone_GUID)
 	discard_zone = getObjectFromGUID(discard_zone_GUID)
+	-- collect_button = getObjectFromGUID(collect_button_GUID)
 	-- this is a function not an event so this might not get an accurate list
 	-- if a player changes seats vs loads in the game to trigger onLoad
 	player_colors = getSeatedPlayers()
@@ -258,7 +259,7 @@ function reset_board(obj, color)
 	Wait.time(|| deck.shuffle(), 1.5)
 	end
 end
--- Goes through all the zones and takes the chips into the pot
+-- This cleans up the pot before calling the function to gather all chips in the betting zones
 function collect_chips()
 	local zone_objects = {}
 	local pot_zone = getObjectFromGUID(pot_GUID)
@@ -291,8 +292,8 @@ function stack_chips()
 	local pot_position_100s = Global.getTable("pot_position_100s")
 	local pot_position_500s = Global.getTable("pot_position_500s")
 
-	for i in ipairs(betting_zone_GUID) do
-		local object_zone = getObjectFromGUID(betting_zone_GUID[i])
+	for i in ipairs(player_colors) do
+		local object_zone = getObjectFromGUID(zone_dict[player_colors[i]])
 		local zone_objects = object_zone.getObjects()
 		local count = 0
 		for j in ipairs(zone_objects) do
@@ -313,7 +314,7 @@ function stack_chips()
 				zone_objects[j].setRotation(pot_rotation)
 				pot_position_500s.y = pot_position_500s.y + 2.5
 			end
-			while count < 30 do
+			while count < 30 do -- wait 30 frames
 				coroutine.yield(0)
 				count = count + 1
 			end
