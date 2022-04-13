@@ -93,7 +93,6 @@ function onLoad()
 	pot_text = getObjectFromGUID(pot_text_GUID)
 	table_zone = getObjectFromGUID(table_zone_GUID)
 	discard_zone = getObjectFromGUID(discard_zone_GUID)
-	-- collect_button = getObjectFromGUID(collect_button_GUID)
 	-- this is a function not an event so this might not get an accurate list
 	-- if a player changes seats vs loads in the game to trigger onLoad
 	player_colors = getSeatedPlayers()
@@ -238,8 +237,8 @@ function reset_board(obj, color)
 				else
 					table_cards[i].putObject(deck)
 				end
-			elseif (table_cards[i].tag == "Deck") and (not table_cards[i].hasTag("Discard")) and (table_cards[i].getQuantity() <= 16) then
-				Wait.time(||table_cards[i].setPosition(deck_position),offset_time)
+			elseif (table_cards[i].tag == "Deck") and (table_cards[i].guid != deck_GUID) and (table_cards[i].getQuantity() <= 16) then
+				Wait.time(|| table_cards[i].setPosition(deck_position),offset_time)
 				Wait.time(|| table_cards[i].setRotation(deck_rotation),offset_time)
 				offset_time = offset_time + .15
 			end
@@ -359,5 +358,211 @@ function dealInitialChips(color)
   end
   for i = 1, num_100 do
     inf_bag_100.call('dealChips', {color})
+  end
+end
+
+function collect_winnings(object, player)
+  local pot_zone = Global.getVar("pot_GUID")
+  pot_zone = getObjectFromGUID(pot_zone)
+  local pot_stuff = pot_zone.getObjects()
+  local hand = Player[player].getPlayerHand()
+  for i in pairs(pot_stuff)do
+    if pot_stuff[i].tag == "Chip" and not pot_stuff[i].hasTag("Dealer") then
+      if player == "White" then
+        if pot_stuff[i].getValue() == 10 then
+          position_x = hand["pos_x"] + 1.5
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] + 6.5
+          rotation = {x=180,y=90,z=0}
+          local position_table_10s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_10s)
+        elseif pot_stuff[i].getValue() == 50 then
+          position_x = hand["pos_x"] + 3.5
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] + 4.75
+          rotation = {x=180,y=90,z=0}
+          local position_table_50s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_50s)
+        elseif pot_stuff[i].getValue() == 100 then
+          position_x = hand["pos_x"] + 5.5
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] + 3
+          rotation = {x=180,y=90,z=0}
+          local position_table_100s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_100s)
+        elseif pot_stuff[i].getValue() == 500 then
+          position_x = hand["pos_x"] + 1.5
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] + 2.5
+          rotation = {x=180,y=90,z=0}
+          local position_table_500s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_500s)
+        end
+      elseif player == "Red" then
+        if pot_stuff[i].getValue() == 10 then
+          position_x = hand["pos_x"] + 7
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] - .5
+          rotation = {x=180,y=90,z=0}
+          local position_table_10s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_10s)
+        elseif pot_stuff[i].getValue() == 50 then
+          position_x = hand["pos_x"] + 6.5
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] - 3
+          rotation = {x=180,y=90,z=0}
+          local position_table_50s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_50s)
+        elseif pot_stuff[i].getValue() == 100 then
+          position_x = hand["pos_x"] + 5.5
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] - 5.5
+          rotation = {x=180,y=90,z=0}
+          local position_table_100s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_100s)
+        elseif pot_stuff[i].getValue() == 500 then
+          position_x = hand["pos_x"] + 4
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] - 2.5
+          rotation = {x=180,y=90,z=0}
+          local position_table_500s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_500s)
+        end
+      elseif player == "Purple" then
+        if pot_stuff[i].getValue() == 10 then
+          position_x = hand["pos_x"] - 5
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] - 6
+          rotation = {x=180,y=90,z=0}
+          local position_table_10s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_10s)
+        elseif pot_stuff[i].getValue() == 50 then
+          position_x = hand["pos_x"] - 6
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] - 4
+          rotation = {x=180,y=90,z=0}
+          local position_table_50s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_50s)
+        elseif pot_stuff[i].getValue() == 100 then
+          position_x = hand["pos_x"] - 7
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] - 2
+          rotation = {x=180,y=90,z=0}
+          local position_table_100s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_100s)
+        elseif pot_stuff[i].getValue() == 500 then
+          position_x = hand["pos_x"] - 4
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] - 3
+          rotation = {x=180,y=90,z=0}
+          local position_table_500s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_500s)
+        end
+      elseif player == "Pink" then
+        if pot_stuff[i].getValue() == 10 then
+          position_x = hand["pos_x"] - 7.5
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] + 3
+          rotation = {x=180,y=90,z=0}
+          local position_table_10s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_10s)
+        elseif pot_stuff[i].getValue() == 50 then
+          position_x = hand["pos_x"] - 6
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] + 4.5
+          rotation = {x=180,y=90,z=0}
+          local position_table_50s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_50s)
+        elseif pot_stuff[i].getValue() == 100 then
+          position_x = hand["pos_x"] - 4.5
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] + 6
+          rotation = {x=180,y=90,z=0}
+          local position_table_100s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_100s)
+        elseif pot_stuff[i].getValue() == 500 then
+          position_x = hand["pos_x"] - 3
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] + 7
+          rotation = {x=180,y=90,z=0}
+          local position_table_500s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_500s)
+        end
+      else
+        if pot_stuff[i].getValue() == 10 then
+          position_x = hand["pos_x"] + 3.5
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] - 7.5
+          rotation = {x=180,y=90,z=0}
+          local position_table_10s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_10s)
+        elseif pot_stuff[i].getValue() == 50 then
+          position_x = hand["pos_x"] + 1.5
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] - 7.5
+          rotation = {x=180,y=90,z=0}
+          local position_table_50s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_50s)
+        elseif pot_stuff[i].getValue() == 100 then
+          position_x = hand["pos_x"] - .5
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] - 7.5
+          rotation = {x=180,y=90,z=0}
+          local position_table_100s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_100s)
+        elseif pot_stuff[i].getValue() == 500 then
+          position_x = hand["pos_x"] - 3
+          position_y = hand["pos_y"]
+          position_z = hand["pos_z"] - 7.5
+          rotation = {x=180,y=90,z=0}
+          local position_table_500s = {position_x, position_y, position_z}
+          pot_stuff[i].setPosition(position_table_500s)
+        end
+      end
+    	local position_table = {position_x, position_y, position_z}
+    	pot_stuff[i].setPosition(position_table)
+    end
+  end
+end
+
+function foldHand (object, player)
+  local cards = Player[player].getHandObjects()
+  local color_table = Global.getTable("rgb_table")
+  local rgb = color_table[player]
+  local hand = Player[player].getPlayerHand()
+  if player == "White" then
+    position_x = hand["pos_x"] + 5
+    position_y = hand["pos_y"]
+    position_z = hand["pos_z"] + 4
+    rotation = {x=180,y=35,z=0}
+  elseif player == "Red" then
+    position_x = hand["pos_x"] + 7
+    position_y = hand["pos_y"]
+    position_z = hand["pos_z"] - 3
+    rotation = {x=180,y=105,z=0}
+  elseif player == "Purple" then
+    position_x = hand["pos_x"] - 8
+    position_y = hand["pos_y"]
+    position_z = hand["pos_z"] - 3
+    rotation = {x=180,y=64,z=0}
+  elseif player == "Pink" then
+    position_x = hand["pos_x"] - 5
+    position_y = hand["pos_y"]
+    position_z = hand["pos_z"] + 7
+    rotation = {x=180,y=135,z=0}
+  else
+    position_x = hand["pos_x"]
+    position_y = hand["pos_y"]
+    position_z = hand["pos_z"] - 8
+    rotation = {x=180,y=0,z=0}
+  end
+  local position_table = {position_x, position_y, position_z}
+  if cards[1] != nil then
+    for i in pairs(cards) do
+      cards[i].setRotation(Global.getVar("discard_rotation"))
+      cards[i].flip()
+      Wait.time(function() cards[i].setPosition(position_table) cards[i].setRotation(rotation) end, 0.25)
+    end
+    broadcastToAll(Player[player].steam_name.." folds", rgb)
   end
 end
