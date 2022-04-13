@@ -211,6 +211,7 @@ end
 -- if deck does not equal 52 cards after reset, delete old deck, create new deck in its spot
 -- reset state variable
 function reset_board(obj, color)
+	collect_chips()
 	state = 0
 	local offset_time = 0
 	local discard_cards = discard_zone.getObjects()
